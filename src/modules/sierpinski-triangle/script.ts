@@ -40,7 +40,7 @@ export default () => {
 
         const angleOffset: number = - Math.PI / 2;
 
-        for (let i: number = 0; i < count; i++) {
+        for (let i = 0; i < count; i++) {
             nodes.push([
                 radius * Math.cos(angleStep * i + angleOffset) + centerCoordinate[0],
                 radius * Math.sin(angleStep * i + angleOffset)  + centerCoordinate[1],
@@ -50,7 +50,7 @@ export default () => {
         return nodes;
     };
 
-    const DEFAULT_NODES_COUNT: number = 3;
+    const DEFAULT_NODES_COUNT = 3;
 
     let baseNodes: vector[] = getBaseNodes(DEFAULT_NODES_COUNT);
 
@@ -62,7 +62,7 @@ export default () => {
         return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
     };
 
-    let renderStopFlag: boolean = false;
+    let renderStopFlag = false;
 
     const render = (): void => {
         context.fillStyle = '#212529';
@@ -79,7 +79,7 @@ export default () => {
                 return;
             }
 
-            for (let i: number = 0; i < 100; i++) {
+            for (let i = 0; i < 100; i++) {
                 const nextNodeIndex: number = Math.floor(Math.random() * baseNodes.length);
                 const nextNode: vector = baseNodes[nextNodeIndex];
 
