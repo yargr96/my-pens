@@ -2,7 +2,7 @@ import './styles/main.scss';
 
 import sierpinskiTriangle from "./modules/sierpinski-triangle";
 
-const app = () => {
+const app = (): void => {
     sierpinskiTriangle();
 };
 
