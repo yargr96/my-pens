@@ -14,6 +14,9 @@ module.exports = {
         static: './dist',
     },
     plugins: [
-        new HtmlWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            inject: 'body',
+            scriptLoading: 'blocking',
+        }),
     ],
 };
