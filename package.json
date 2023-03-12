@@ -1,0 +1,26 @@
+{
+  "name": "my-pens",
+  "version": "1.0.0",
+  "description": "**В этом репозитории будет приложение с общим собранием моих javascript-зарисовок**",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "serve": "webpack serve --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yargr96/my-pens.git"
+  },
+  "author": "Yaroslav Gromov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yargr96/my-pens/issues"
+  },
+  "homepage": "https://github.com/yargr96/my-pens#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.76.1",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.11.1"
+  }
+}
