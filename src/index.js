@@ -1,3 +1,7 @@
-import test from './test';
+import sierpinskiTriangle from "./modules/sierpinski-triangle";
 
-test();
+const app = () => {
+    sierpinskiTriangle();
+};
+
+document.addEventListener('DOMContentLoaded', app);
