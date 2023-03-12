@@ -1,5 +1,6 @@
 import './style.scss';
+import script from "./script";
 
 export default () => {
-    console.log('Sierpinski');
+    script();
 };

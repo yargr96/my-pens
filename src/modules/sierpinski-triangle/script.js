@@ -1,5 +1,23 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.querySelector('#canvas');
+const createCanvas = () => {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'sierpinski-triangle__canvas'
+    document.body.appendChild(canvas);
+    return canvas;
+}
+
+const createRange = () => {
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.min = '3';
+    range.max = '10';
+    range.className = 'sierpinski-triangle__range';
+    document.body.appendChild(range);
+
+    return range;
+}
+
+export default () => {
+    const canvas = createCanvas();
 
     canvas.width = window.innerWidth * 2;
     canvas.height = window.innerHeight * 2;
@@ -58,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            for (let i = 0; i < 1000; i++) {
+            for (let i = 0; i < 100; i++) {
                 const nextNodeIndex = Math.floor(Math.random() * baseNodes.length);
                 const nextNode = baseNodes[nextNodeIndex];
 
@@ -76,10 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     render();
 
-    const range = document.querySelector('#range');
+    const range = createRange();
     range.value = DEFAULT_NODES_COUNT;
     range.addEventListener('input', ({ target: { value }}) => {
         baseNodes = getBaseNodes(value);
         render();
     })
-});
+};

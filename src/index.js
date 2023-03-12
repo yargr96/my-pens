@@ -1,5 +1,6 @@
-import sierpinskiTriangle from "./modules/sierpinski-triangle";
 import './styles/main.scss';
+
+import sierpinskiTriangle from "./modules/sierpinski-triangle";
 
 const app = () => {
     sierpinskiTriangle();
