@@ -24,8 +24,8 @@ module.exports = {
                     'css-loader',
                     'postcss-loader',
                     'sass-loader',
-                ]
-            }
+                ],
+            },
         ],
     },
     resolve: {
@@ -41,7 +41,7 @@ module.exports = {
             scriptLoading: 'blocking',
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash:8].css'
+            filename: '[name].[contenthash:8].css',
         }),
     ],
 };
