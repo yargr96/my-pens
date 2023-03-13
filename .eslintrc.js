@@ -20,6 +20,7 @@ module.exports = {
         camelcase: 'error',
         '@typescript-eslint/indent': 'off',
         indent: ['error', 4],
+        'no-restricted-exports': 'off',
         // todo fix extensions
         'import/extensions': 'off',
     },
