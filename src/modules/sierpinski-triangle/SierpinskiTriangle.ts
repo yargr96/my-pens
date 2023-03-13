@@ -2,8 +2,7 @@ import colors from '@/styles/colors.module.scss';
 
 import Canvas from '@/components/Canvas';
 import Range from '@/components/Range';
-
-type Vector = [number, number];
+import { Vector, getPointBetween, CLOCK_ANGLE_OFFSET } from '@/utils/Vector';
 
 export default () => {
     const canvas = Canvas();
@@ -25,12 +24,10 @@ export default () => {
 
         const nodes: Vector[] = [];
 
-        const angleOffset: number = -Math.PI / 2;
-
         for (let i = 0; i < count; i += 1) {
             nodes.push([
-                radius * Math.cos(angleStep * i + angleOffset) + centerCoordinate[0],
-                radius * Math.sin(angleStep * i + angleOffset) + centerCoordinate[1],
+                radius * Math.cos(angleStep * i + CLOCK_ANGLE_OFFSET) + centerCoordinate[0],
+                radius * Math.sin(angleStep * i + CLOCK_ANGLE_OFFSET) + centerCoordinate[1],
             ]);
         }
 
@@ -44,8 +41,6 @@ export default () => {
     baseNodes.forEach(([x, y]) => {
         context.fillRect(x, y, 1, 1);
     });
-
-    const getMiddlePoint = (a: Vector, b: Vector): Vector => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
     let renderStopFlag = false;
 
@@ -68,7 +63,7 @@ export default () => {
                 const nextNodeIndex: number = Math.floor(Math.random() * baseNodes.length);
                 const nextNode: Vector = baseNodes[nextNodeIndex];
 
-                const newPoint: Vector = getMiddlePoint(lastPoint, nextNode);
+                const newPoint: Vector = getPointBetween(lastPoint, nextNode);
                 context.fillRect(newPoint[0], newPoint[1], 2, 2);
 
                 lastPoint = newPoint;
