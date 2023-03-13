@@ -1,18 +1,7 @@
-import styles from '@/modules/sierpinski-triangle/style.module.scss';
 import colors from '@/styles/colors.module.scss';
 
 import Canvas from '@/components/Canvas';
-
-const createRange = (): HTMLInputElement => {
-    const range = document.createElement('input');
-    range.type = 'range';
-    range.min = '3';
-    range.max = '10';
-    range.className = styles.range;
-    document.body.appendChild(range);
-
-    return range;
-};
+import Range from '@/components/Range';
 
 type Vector = [number, number];
 
@@ -93,8 +82,9 @@ export default () => {
 
     render();
 
-    const range: HTMLInputElement = createRange();
+    const range: HTMLInputElement = Range();
     range.value = String(DEFAULT_NODES_COUNT);
+    document.body.appendChild(range);
 
     range.addEventListener('input', ({ target }): void => {
         baseNodes = getBaseNodes(Number((target as HTMLInputElement).value));
