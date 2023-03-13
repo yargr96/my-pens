@@ -1,13 +1,7 @@
-import styles from './style.module.scss';
-import colors from '../../styles/colors.module.scss';
+import styles from '@/modules/sierpinski-triangle/style.module.scss';
+import colors from '@/styles/colors.module.scss';
 
-const createCanvas = (): HTMLCanvasElement => {
-    const canvas: HTMLCanvasElement = document.createElement('canvas');
-    canvas.className = styles.canvas;
-    document.body.appendChild(canvas);
-
-    return canvas;
-};
+import Canvas from '@/components/Canvas';
 
 const createRange = (): HTMLInputElement => {
     const range = document.createElement('input');
@@ -23,7 +17,8 @@ const createRange = (): HTMLInputElement => {
 type Vector = [number, number];
 
 export default () => {
-    const canvas = createCanvas();
+    const canvas = Canvas();
+    document.body.appendChild(canvas);
 
     canvas.width = window.innerWidth * 2;
     canvas.height = window.innerHeight * 2;
