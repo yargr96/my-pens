@@ -6,5 +6,5 @@
     "target": "ES5",
     "moduleResolution": "node"
   },
-  "include": ["src/**/*", ".eslintrc.js", "webpack.config.js"]
+  "include": ["./**/*", ".eslintrc.js"]
 }

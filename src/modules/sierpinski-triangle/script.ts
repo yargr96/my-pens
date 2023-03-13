@@ -1,6 +1,9 @@
+import styles from './style.module.scss';
+import colors from '../../styles/colors.module.scss';
+
 const createCanvas = (): HTMLCanvasElement => {
     const canvas: HTMLCanvasElement = document.createElement('canvas');
-    canvas.className = 'sierpinski-triangle__canvas';
+    canvas.className = styles.canvas;
     document.body.appendChild(canvas);
 
     return canvas;
@@ -11,7 +14,7 @@ const createRange = (): HTMLInputElement => {
     range.type = 'range';
     range.min = '3';
     range.max = '10';
-    range.className = 'sierpinski-triangle__range';
+    range.className = styles.range;
     document.body.appendChild(range);
 
     return range;
@@ -63,9 +66,9 @@ export default () => {
     let renderStopFlag = false;
 
     const render = (): void => {
-        context.fillStyle = '#212529';
+        context.fillStyle = colors.dark;
         context.fillRect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = '#f8f9fa';
+        context.fillStyle = colors.light;
 
         let lastPoint: Vector = baseNodes[0];
 
