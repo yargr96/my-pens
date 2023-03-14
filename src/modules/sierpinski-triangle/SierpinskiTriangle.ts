@@ -2,43 +2,53 @@ import colors from '@/styles/colors.module.scss';
 
 import Canvas from '@/components/Canvas';
 import Range from '@/components/Range';
-import { Vector, getPointBetween, CLOCK_ANGLE_OFFSET } from '@/utils/Vector';
+import {
+    Vector,
+    addVectors,
+    getPointBetween,
+    getVectorFromAngle,
+    CLOCK_ANGLE_OFFSET,
+} from '@/utils/Vector';
 
-export default () => {
+const CIRCLE_OFFSET = 100;
+const DEFAULT_POINTS_COUNT = 3;
+
+const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
+    const radius: number = Math.min(...centerCoordinate) - CIRCLE_OFFSET;
+    const angleStep: number = (2 * Math.PI) / count;
+
+    const basePoints: Vector[] = [];
+
+    for (let i = 0; i < count; i += 1) {
+        const angle = angleStep * i + CLOCK_ANGLE_OFFSET;
+
+        basePoints.push(addVectors(
+            getVectorFromAngle(angle, radius),
+            centerCoordinate,
+        ));
+    }
+
+    return basePoints;
+};
+
+const SierpinskiTriangle = () => {
     const canvas = Canvas();
-    document.body.appendChild(canvas);
 
     canvas.width = window.innerWidth * 2;
     canvas.height = window.innerHeight * 2;
 
-    const context = canvas.getContext('2d');
+    document.body.appendChild(canvas);
 
-    const getBaseNodes = (count: number): Vector[] => {
-        const centerCoordinate: Vector = [
-            canvas.width / 2,
-            canvas.height / 2,
-        ];
+    const context: CanvasRenderingContext2D = canvas.getContext('2d');
 
-        const radius: number = Math.min(...centerCoordinate) - 100;
-        const angleStep: number = (2 * Math.PI) / count;
+    const centerCoordinate: Vector = [
+        canvas.width / 2,
+        canvas.height / 2,
+    ];
 
-        const nodes: Vector[] = [];
+    let basePoints: Vector[] = getBasePoints(DEFAULT_POINTS_COUNT, centerCoordinate);
 
-        for (let i = 0; i < count; i += 1) {
-            nodes.push([
-                radius * Math.cos(angleStep * i + CLOCK_ANGLE_OFFSET) + centerCoordinate[0],
-                radius * Math.sin(angleStep * i + CLOCK_ANGLE_OFFSET) + centerCoordinate[1],
-            ]);
-        }
-
-        return nodes;
-    };
-
-    const DEFAULT_NODES_COUNT = 3;
-
-    let baseNodes: Vector[] = getBaseNodes(DEFAULT_NODES_COUNT);
-
-    baseNodes.forEach(([x, y]) => {
+    basePoints.forEach(([x, y]) => {
         context.fillRect(x, y, 1, 1);
     });
 
@@ -49,7 +59,7 @@ export default () => {
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = colors.light;
 
-        let lastPoint: Vector = baseNodes[0];
+        let lastPoint: Vector = basePoints[0];
 
         renderStopFlag = !renderStopFlag;
         const currentStopFlag: boolean = renderStopFlag;
@@ -60,10 +70,10 @@ export default () => {
             }
 
             for (let i = 0; i < 100; i += 1) {
-                const nextNodeIndex: number = Math.floor(Math.random() * baseNodes.length);
-                const nextNode: Vector = baseNodes[nextNodeIndex];
+                const nextPointIndex: number = Math.floor(Math.random() * basePoints.length);
+                const nextPoint: Vector = basePoints[nextPointIndex];
 
-                const newPoint: Vector = getPointBetween(lastPoint, nextNode);
+                const newPoint: Vector = getPointBetween(lastPoint, nextPoint);
                 context.fillRect(newPoint[0], newPoint[1], 2, 2);
 
                 lastPoint = newPoint;
@@ -78,11 +88,13 @@ export default () => {
     render();
 
     const range: HTMLInputElement = Range();
-    range.value = String(DEFAULT_NODES_COUNT);
+    range.value = String(DEFAULT_POINTS_COUNT);
     document.body.appendChild(range);
 
     range.addEventListener('input', ({ target }): void => {
-        baseNodes = getBaseNodes(Number((target as HTMLInputElement).value));
+        basePoints = getBasePoints(Number((target as HTMLInputElement).value), centerCoordinate);
         render();
     });
 };
+
+export default SierpinskiTriangle;
