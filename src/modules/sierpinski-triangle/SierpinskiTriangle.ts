@@ -11,7 +11,7 @@ import {
 } from '@/utils/Vector';
 
 const CIRCLE_OFFSET = 100;
-const DEFAULT_POINTS_COUNT = 3;
+let basePointsCount = 3;
 
 const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
     const radius: number = Math.min(...centerCoordinate) - CIRCLE_OFFSET;
@@ -46,18 +46,18 @@ const SierpinskiTriangle = () => {
         canvas.height / 2,
     ];
 
-    let basePoints: Vector[] = getBasePoints(DEFAULT_POINTS_COUNT, centerCoordinate);
-
-    basePoints.forEach(([x, y]) => {
-        context.fillRect(x, y, 1, 1);
-    });
-
     let renderStopFlag = false;
 
     const render = (): void => {
         context.fillStyle = colors.dark;
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.fillStyle = colors.light;
+
+        const basePoints: Vector[] = getBasePoints(basePointsCount, centerCoordinate);
+
+        basePoints.forEach(([x, y]) => {
+            context.fillRect(x, y, 1, 1);
+        });
 
         let lastPoint: Vector = basePoints[0];
 
@@ -88,11 +88,11 @@ const SierpinskiTriangle = () => {
     render();
 
     const range: HTMLInputElement = Range();
-    range.value = String(DEFAULT_POINTS_COUNT);
+    range.value = String(basePointsCount);
     document.body.appendChild(range);
 
     range.addEventListener('input', ({ target }): void => {
-        basePoints = getBasePoints(Number((target as HTMLInputElement).value), centerCoordinate);
+        basePointsCount = Number((target as HTMLInputElement).value);
         render();
     });
 };
