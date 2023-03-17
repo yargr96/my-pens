@@ -46,7 +46,7 @@ const SierpinskiTriangle = () => {
         canvas.height / 2,
     ];
 
-    let renderStopFlag = false;
+    let renderFrameGlobal: () => void;
 
     const render = (): void => {
         context.fillStyle = colors.dark;
@@ -61,11 +61,8 @@ const SierpinskiTriangle = () => {
 
         let lastPoint: Vector = basePoints[0];
 
-        renderStopFlag = !renderStopFlag;
-        const currentStopFlag: boolean = renderStopFlag;
-
         const renderFrame = (): void => {
-            if (currentStopFlag !== renderStopFlag) {
+            if (renderFrame !== renderFrameGlobal) {
                 return;
             }
 
@@ -82,6 +79,7 @@ const SierpinskiTriangle = () => {
             requestAnimationFrame(renderFrame);
         };
 
+        renderFrameGlobal = renderFrame;
         renderFrame();
     };
 
