@@ -2,6 +2,7 @@ import Canvas from '@/components/Canvas';
 import { IParticle, getMovedParticle } from '@/utils/Particle';
 import {
     Vector,
+    subtractVector,
     getVectorAngle,
     polarToCartesianVector,
     multiplyVectorByNumber,
@@ -27,9 +28,7 @@ const Gravity = () => {
     append(document.body);
 
     const context: CanvasRenderingContext2D = getContext();
-
     let particles: IParticle[] = [];
-
     let mouse: Vector = [canvas.width / 2, canvas.height / 2];
 
     const addParticle = (position: Vector): void => {
@@ -45,65 +44,55 @@ const Gravity = () => {
         context.fillRect(0, 0, canvas.width, canvas.height);
     };
 
-    const updateParticles = (): void => {
-        particles = particles.map(({ position, velocity }) => {
-            const angle = getVectorAngle([
-                mouse[0] - position[0],
-                mouse[1] - position[1],
-            ]);
+    const isParticleOutOfBounds = (particle: IParticle): { x: boolean, y: boolean } => {
+        const halfParticleSize = config.particleSize / 2;
 
-            const particle = getMovedParticle({
-                position,
-                acceleration: polarToCartesianVector(config.speed, angle),
-                velocity: multiplyVectorByNumber(velocity, config.decelerationCoefficient),
-            });
+        const isOutOfX = (
+            particle.position[0] + halfParticleSize >= canvas.width
+            && particle.velocity[0] > 0
+        ) || (
+            particle.position[0] - halfParticleSize < 0
+            && particle.velocity[0] < 0
+        );
 
-            const halfParticleSize = config.particleSize / 2;
+        const isOutOfY = (
+            particle.position[1] + halfParticleSize >= canvas.height
+            && particle.velocity[1] > 0
+        ) || (
+            particle.position[1] - halfParticleSize < 0
+            && particle.velocity[1] < 0
+        );
 
-            if (
-                (
-                    particle.position[0] + halfParticleSize >= canvas.width
-                    && particle.velocity[0] > 0
-                )
-                || (
-                    particle.position[0] - halfParticleSize < 0
-                    && particle.velocity[0] < 0
-                )
-            ) {
-                particle.velocity[0] *= -1;
-            }
-
-            if (
-                (
-                    particle.position[1] + halfParticleSize >= canvas.height
-                    && particle.velocity[1] > 0
-                )
-                || (
-                    particle.position[1] - halfParticleSize < 0
-                    && particle.velocity[1] < 0
-                )
-            ) {
-                particle.velocity[1] *= -1;
-            }
-
-            return particle;
-        });
+        return {
+            x: isOutOfX,
+            y: isOutOfY,
+        };
     };
 
-    const draw = (): void => {
-        context.fillStyle = colors.light;
+    const getUpdatedParticle = ({ position, velocity }: IParticle): IParticle => {
+        const angle = getVectorAngle(subtractVector(mouse, position));
 
-        particles.forEach((particle) => {
-            context.beginPath();
-            context.arc(
-                particle.position[0],
-                particle.position[1],
-                config.particleSize / 2,
-                0,
-                Math.PI * 2,
-            );
-            context.fill();
+        const particle = getMovedParticle({
+            position,
+            acceleration: polarToCartesianVector(config.speed, angle),
+            velocity: multiplyVectorByNumber(velocity, config.decelerationCoefficient),
         });
+
+        const isOutOfBounds = isParticleOutOfBounds(particle);
+
+        if (isOutOfBounds.x) {
+            particle.velocity[0] *= -1;
+        }
+
+        if (isOutOfBounds.y) {
+            particle.velocity[1] *= -1;
+        }
+
+        return particle;
+    };
+
+    const updateParticles = (): void => {
+        particles = particles.map(getUpdatedParticle);
     };
 
     let renderFrameGlobal: () => void;
@@ -116,7 +105,20 @@ const Gravity = () => {
 
             clear();
             updateParticles();
-            draw();
+
+            context.fillStyle = colors.light;
+
+            particles.forEach((particle) => {
+                context.beginPath();
+                context.arc(
+                    particle.position[0],
+                    particle.position[1],
+                    config.particleSize / 2,
+                    0,
+                    Math.PI * 2,
+                );
+                context.fill();
+            });
 
             requestAnimationFrame(renderFrame);
         };
