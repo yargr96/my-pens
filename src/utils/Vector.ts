@@ -15,4 +15,6 @@ export const polarToCartesianVector = (radius: number, angle: number): Vector =>
     radius * Math.sin(angle),
 ];
 
+export const getVectorAngle = ([x, y]: Vector): number => Math.atan2(y, x);
+
 export const CLOCK_ANGLE_OFFSET: number = -Math.PI / 2;
