@@ -4,7 +4,11 @@
     "noImplicitAny": true,
     "module": "ES2022",
     "target": "ES5",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["./**/*", ".eslintrc.js"]
 }

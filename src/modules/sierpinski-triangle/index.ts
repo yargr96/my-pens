@@ -1,5 +1,1 @@
-import script from './script';
-
-export default () => {
-    script();
-};
+export { default } from './SierpinskiTriangle';
