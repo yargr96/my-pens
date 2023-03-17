@@ -5,8 +5,9 @@ import { Vector, getVectorAngle, polarToCartesianVector } from '@/utils/Vector';
 import colors from '@/styles/colors.module.scss';
 
 const config = {
-    speed: 1,
-    size: 10,
+    speed: 1.4,
+    size: 20,
+    decelerationCoefficient: 0.99,
 };
 
 const Gravity = () => {
@@ -39,7 +40,7 @@ const Gravity = () => {
         context.fillRect(0, 0, canvas.width, canvas.height);
     };
 
-    const update = (): void => {
+    const updateParticles = (): void => {
         particles = particles.map(({ position, velocity }) => {
             const angle = getVectorAngle([
                 mouse[0] - position[0],
@@ -49,7 +50,10 @@ const Gravity = () => {
             const particle = getMovedParticle({
                 position,
                 acceleration: polarToCartesianVector(config.speed, angle),
-                velocity: [velocity[0] * 0.99, velocity[1] * 0.99],
+                velocity: [
+                    velocity[0] * config.decelerationCoefficient,
+                    velocity[1] * config.decelerationCoefficient
+                ],
             });
 
             const halfSize = config.size / 2;
@@ -97,7 +101,7 @@ const Gravity = () => {
             }
 
             clear();
-            update();
+            updateParticles();
             draw();
 
             requestAnimationFrame(renderFrame);
