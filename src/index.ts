@@ -10,7 +10,17 @@ const modules = {
 
 const app = (): void => {
     const mountElement = document.querySelector('#content');
-    modules.gravity(mountElement);
+
+    const navElements: NodeListOf<HTMLElement> = document.querySelectorAll('.nav-item');
+    navElements.forEach((element) => {
+        element.addEventListener('click', () => {
+            const { nav }: {
+                nav: keyof typeof modules
+            } = element.dataset as { nav: keyof typeof modules };
+
+            modules[nav](mountElement);
+        });
+    });
 };
 
 document.addEventListener('DOMContentLoaded', app);
