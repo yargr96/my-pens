@@ -8,15 +8,17 @@ const modules = {
     sierpinskiTriangle,
 };
 
+interface INavElement extends HTMLElement {
+    dataset: { nav: keyof typeof modules };
+}
+
 const app = (): void => {
     const mountElement = document.querySelector('#content');
 
-    const navElements: NodeListOf<HTMLElement> = document.querySelectorAll('.nav-item');
+    const navElements: NodeListOf<INavElement> = document.querySelectorAll('.nav-item');
     navElements.forEach((element) => {
         element.addEventListener('click', () => {
-            const { nav }: {
-                nav: keyof typeof modules
-            } = element.dataset as { nav: keyof typeof modules };
+            const { nav } = element.dataset;
 
             modules[nav](mountElement);
         });
