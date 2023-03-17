@@ -5,6 +5,11 @@ export const addVectors = (a: Vector, b: Vector): Vector => [
     a[1] + b[1],
 ];
 
+export const multiplyVectorByNumber = ([x, y]: Vector, number: number): Vector => [
+    x * number,
+    y * number,
+];
+
 export const getPointBetween = (a: Vector, b: Vector): Vector => [
     (a[0] + b[0]) / 2,
     (a[1] + b[1]) / 2,

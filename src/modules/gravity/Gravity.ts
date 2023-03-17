@@ -1,6 +1,11 @@
 import Canvas from '@/components/Canvas';
 import { IParticle, getMovedParticle } from '@/utils/Particle';
-import { Vector, getVectorAngle, polarToCartesianVector } from '@/utils/Vector';
+import {
+    Vector,
+    getVectorAngle,
+    polarToCartesianVector,
+    multiplyVectorByNumber,
+} from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
 
@@ -50,10 +55,7 @@ const Gravity = () => {
             const particle = getMovedParticle({
                 position,
                 acceleration: polarToCartesianVector(config.speed, angle),
-                velocity: [
-                    velocity[0] * config.decelerationCoefficient,
-                    velocity[1] * config.decelerationCoefficient
-                ],
+                velocity: multiplyVectorByNumber(velocity, config.decelerationCoefficient),
             });
 
             const halfSize = config.size / 2;
@@ -121,7 +123,7 @@ const Gravity = () => {
     render();
 
     canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
-        mouse = [offsetX * 2, offsetY * 2];
+        mouse = multiplyVectorByNumber([offsetX, offsetY], 2);
     });
 };
 
