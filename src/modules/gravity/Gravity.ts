@@ -11,7 +11,7 @@ import colors from '@/styles/colors.module.scss';
 
 const config = {
     speed: 1.4,
-    size: 20,
+    particleSize: 20,
     decelerationCoefficient: 0.99,
 };
 
@@ -58,18 +58,30 @@ const Gravity = () => {
                 velocity: multiplyVectorByNumber(velocity, config.decelerationCoefficient),
             });
 
-            const halfSize = config.size / 2;
+            const halfParticleSize = config.particleSize / 2;
 
             if (
-                (particle.position[0] + halfSize >= canvas.width && particle.velocity[0] > 0)
-                || (particle.position[0] - halfSize < 0 && particle.velocity[0] < 0)
+                (
+                    particle.position[0] + halfParticleSize >= canvas.width
+                    && particle.velocity[0] > 0
+                )
+                || (
+                    particle.position[0] - halfParticleSize < 0
+                    && particle.velocity[0] < 0
+                )
             ) {
                 particle.velocity[0] *= -1;
             }
 
             if (
-                (particle.position[1] + halfSize >= canvas.height && particle.velocity[1] > 0)
-                || (particle.position[1] - halfSize < 0 && particle.velocity[1] < 0)
+                (
+                    particle.position[1] + halfParticleSize >= canvas.height
+                    && particle.velocity[1] > 0
+                )
+                || (
+                    particle.position[1] - halfParticleSize < 0
+                    && particle.velocity[1] < 0
+                )
             ) {
                 particle.velocity[1] *= -1;
             }
@@ -86,7 +98,7 @@ const Gravity = () => {
             context.arc(
                 particle.position[0],
                 particle.position[1],
-                config.size / 2,
+                config.particleSize / 2,
                 0,
                 Math.PI * 2,
             );
