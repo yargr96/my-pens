@@ -14,6 +14,7 @@ const config = {
     speed: 1.4,
     particleSize: 20,
     decelerationCoefficient: 0.99,
+    pointsCount: 500,
 };
 
 const Gravity = () => {
@@ -30,14 +31,6 @@ const Gravity = () => {
     const context: CanvasRenderingContext2D = getContext();
     let particles: IParticle[] = [];
     let mouse: Vector = [canvas.width / 2, canvas.height / 2];
-
-    const addParticle = (position: Vector): void => {
-        particles.push({
-            position,
-            velocity: [Math.random() * 10 - 5, Math.random() * 10 - 5],
-            acceleration: [0, 0],
-        });
-    };
 
     const clear = (): void => {
         context.fillStyle = colors.dark;
@@ -95,9 +88,23 @@ const Gravity = () => {
         particles = particles.map(getUpdatedParticle);
     };
 
+    const setupParticles = (count: number): void => {
+        particles = [];
+
+        for (let i = 0; i < count; i += 1) {
+            particles.push({
+                position: [canvas.width * Math.random(), canvas.height * Math.random()],
+                velocity: [Math.random() * 10 - 5, Math.random() * 10 - 5],
+                acceleration: [0, 0],
+            });
+        }
+    };
+
     let renderFrameGlobal: () => void;
 
     const render = () => {
+        setupParticles(config.pointsCount);
+
         const renderFrame = () => {
             if (renderFrame !== renderFrameGlobal) {
                 return;
@@ -126,13 +133,6 @@ const Gravity = () => {
         renderFrameGlobal = renderFrame;
         renderFrame();
     };
-
-    for (let i = 0; i < 100; i += 1) {
-        addParticle([
-            canvas.width * Math.random(),
-            canvas.height * Math.random(),
-        ]);
-    }
 
     render();
 
