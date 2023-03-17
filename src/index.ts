@@ -9,7 +9,8 @@ const modules = {
 };
 
 const app = (): void => {
-    modules.gravity();
+    const mountElement = document.querySelector('#content');
+    modules.gravity(mountElement);
 };
 
 document.addEventListener('DOMContentLoaded', app);

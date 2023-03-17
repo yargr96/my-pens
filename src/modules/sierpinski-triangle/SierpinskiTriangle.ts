@@ -31,7 +31,7 @@ const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
     return basePoints;
 };
 
-const SierpinskiTriangle = () => {
+const SierpinskiTriangle = (mountElement: Element): void => {
     const {
         element: canvas,
         setSize,
@@ -39,8 +39,8 @@ const SierpinskiTriangle = () => {
         getContext,
     } = Canvas();
 
-    setSize();
-    append(document.body);
+    setSize(mountElement);
+    append(mountElement);
 
     const context: CanvasRenderingContext2D = getContext();
 
@@ -90,7 +90,7 @@ const SierpinskiTriangle = () => {
 
     const range: HTMLInputElement = Range();
     range.value = String(basePointsCount);
-    document.body.appendChild(range);
+    mountElement.appendChild(range);
 
     range.addEventListener('input', ({ target }): void => {
         basePointsCount = Number((target as HTMLInputElement).value);

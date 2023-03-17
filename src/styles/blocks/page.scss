@@ -1,0 +1,19 @@
+@import '../colors';
+
+.page {
+  display: flex;
+  height: 100vh;
+
+  &__sidebar {
+    width: 300px;
+    height: 100%;
+    background-color: $dark;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    height: 100%;
+    flex-grow: 1;
+    position: relative;
+  }
+}
