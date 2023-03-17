@@ -113,7 +113,6 @@ const Gravity = () => {
             updateParticles();
 
             context.fillStyle = colors.light;
-
             particles.forEach(({ position: [x, y] }) => {
                 context.beginPath();
                 context.arc(
