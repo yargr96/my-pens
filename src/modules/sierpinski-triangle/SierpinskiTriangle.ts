@@ -1,5 +1,3 @@
-import colors from '@/styles/colors.module.scss';
-
 import Canvas from '@/components/Canvas';
 import Range from '@/components/Range';
 import {
@@ -9,6 +7,8 @@ import {
     polarToCartesianVector,
     CLOCK_ANGLE_OFFSET,
 } from '@/utils/Vector';
+
+import colors from '@/styles/colors.module.scss';
 
 const CIRCLE_OFFSET = 100;
 let basePointsCount = 3;
@@ -32,14 +32,17 @@ const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
 };
 
 const SierpinskiTriangle = () => {
-    const canvas = Canvas();
+    const {
+        element: canvas,
+        setSize,
+        append,
+        getContext,
+    } = Canvas();
 
-    canvas.width = window.innerWidth * 2;
-    canvas.height = window.innerHeight * 2;
+    setSize();
+    append(document.body);
 
-    document.body.appendChild(canvas);
-
-    const context: CanvasRenderingContext2D = canvas.getContext('2d');
+    const context: CanvasRenderingContext2D = getContext();
 
     const centerCoordinate: Vector = [
         canvas.width / 2,
