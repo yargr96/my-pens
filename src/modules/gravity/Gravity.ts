@@ -31,6 +31,7 @@ const Gravity = () => {
     const context: CanvasRenderingContext2D = getContext();
     let particles: IParticle[] = [];
     let mouse: Vector = [canvas.width / 2, canvas.height / 2];
+    const halfParticleSize = config.particleSize / 2;
 
     const clear = (): void => {
         context.fillStyle = colors.dark;
@@ -38,8 +39,6 @@ const Gravity = () => {
     };
 
     const isParticleOutOfBounds = (particle: IParticle): { x: boolean, y: boolean } => {
-        const halfParticleSize = config.particleSize / 2;
-
         const isOutOfX = (
             particle.position[0] + halfParticleSize >= canvas.width
             && particle.velocity[0] > 0
@@ -115,12 +114,12 @@ const Gravity = () => {
 
             context.fillStyle = colors.light;
 
-            particles.forEach((particle) => {
+            particles.forEach(({ position: [x, y] }) => {
                 context.beginPath();
                 context.arc(
-                    particle.position[0],
-                    particle.position[1],
-                    config.particleSize / 2,
+                    x,
+                    y,
+                    halfParticleSize,
                     0,
                     Math.PI * 2,
                 );
