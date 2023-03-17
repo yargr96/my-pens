@@ -10,9 +10,9 @@ export const getPointBetween = (a: Vector, b: Vector): Vector => [
     (a[1] + b[1]) / 2,
 ];
 
-export const getVectorFromAngle = (angle: number, magnitude: number): Vector => [
-    magnitude * Math.cos(angle),
-    magnitude * Math.sin(angle),
+export const polarToCartesianVector = (radius: number, angle: number): Vector => [
+    radius * Math.cos(angle),
+    radius * Math.sin(angle),
 ];
 
 export const CLOCK_ANGLE_OFFSET: number = -Math.PI / 2;

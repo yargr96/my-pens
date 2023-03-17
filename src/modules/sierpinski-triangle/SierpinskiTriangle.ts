@@ -6,7 +6,7 @@ import {
     Vector,
     addVectors,
     getPointBetween,
-    getVectorFromAngle,
+    polarToCartesianVector,
     CLOCK_ANGLE_OFFSET,
 } from '@/utils/Vector';
 
@@ -23,7 +23,7 @@ const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
         const angle = angleStep * i + CLOCK_ANGLE_OFFSET;
 
         basePoints.push(addVectors(
-            getVectorFromAngle(angle, radius),
+            polarToCartesianVector(radius, angle),
             centerCoordinate,
         ));
     }
