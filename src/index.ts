@@ -43,6 +43,8 @@ const app = (): void => {
 
         navItemsContainer.appendChild(item);
     });
+
+    mountElement.addEventListener('click', closeMenu);
 };
 
 document.addEventListener('DOMContentLoaded', app);
