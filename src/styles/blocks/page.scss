@@ -16,4 +16,11 @@
     flex-grow: 1;
     position: relative;
   }
+
+  &__burger {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+  }
 }
