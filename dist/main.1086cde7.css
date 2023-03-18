@@ -1,0 +1,85 @@
+/*!*********************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/styles/main.scss ***!
+  \*********************************************************************************************************************************************************/
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+.page {
+  display: flex;
+  height: 100vh;
+}
+.page__sidebar {
+  width: 300px;
+  height: 100%;
+  background-color: #212529;
+  flex-shrink: 0;
+}
+.page__content {
+  height: 100%;
+  flex-grow: 1;
+  position: relative;
+}
+
+.sidebar {
+  border-right: 1px solid #f8f9fa;
+  color: #f8f9fa;
+}
+.sidebar__header {
+  padding: 10px;
+  background-color: #0d6efd;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 20px;
+}
+.sidebar__logo-pre {
+  font-size: 12px;
+  font-style: italic;
+  margin-bottom: 2px;
+}
+.sidebar__items {
+  font-size: 18px;
+}
+.sidebar__item {
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sidebar__item:hover {
+  background-color: #adb5bd;
+  color: #212529;
+}
+/*!*****************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/components/Canvas/Canvas.module.scss ***!
+  \*****************************************************************************************************************************************************************************/
+.hNnRXrHlQnLwmuJsTHq5 {
+  display: block;
+  max-width: 100%;
+}
+/*!******************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/styles/colors.module.scss ***!
+  \******************************************************************************************************************************************************************/
+
+/*!***************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/components/Range/Range.module.scss ***!
+  \***************************************************************************************************************************************************************************/
+.JUYzgMhgJCaCUNKzELfF {
+  position: absolute;
+  right: 0;
+  bottom: 100px;
+  left: 0;
+  margin: auto;
+  width: 300px;
+}
+
+/*# sourceMappingURL=main.1086cde7.css.map*/
