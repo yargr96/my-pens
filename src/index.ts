@@ -2,29 +2,40 @@ import '@/styles/main.scss';
 
 import gravity from '@/modules/gravity';
 import sierpinskiTriangle from '@/modules/sierpinski-triangle';
-import useRenderLoop from '@/utils/useRenderLoop';
+import useRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
 
-const modules = {
-    gravity,
-    sierpinskiTriangle,
-};
-
-interface INavElement extends HTMLElement {
-    dataset: { nav: keyof typeof modules };
+interface INavItem {
+    text: string;
+    module: (mountElement: Element, renderLoop: IRenderLoop) => void;
 }
+
+const navItems: INavItem[] = [
+    {
+        text: 'Gravity',
+        module: gravity,
+    },
+    {
+        text: 'Sierpinski triangle',
+        module: sierpinskiTriangle,
+    },
+];
 
 const app = (): void => {
     const renderLoop = useRenderLoop();
     const mountElement = document.querySelector('#content');
+    const navItemsContainer = document.querySelector('#nav-items');
 
-    const navElements: NodeListOf<INavElement> = document.querySelectorAll('.nav-item');
-    navElements.forEach((element) => {
-        element.addEventListener('click', () => {
-            const { nav } = element.dataset;
+    navItems.forEach(({ text, module }) => {
+        const item = document.createElement('div');
+        item.className = 'sidebar__item';
+        item.textContent = text;
 
+        item.addEventListener('click', () => {
             mountElement.innerHTML = '';
-            modules[nav](mountElement, renderLoop);
+            module(mountElement, renderLoop);
         });
+
+        navItemsContainer.appendChild(item);
     });
 };
 
