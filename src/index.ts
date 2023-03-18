@@ -3,6 +3,7 @@ import '@/styles/main.scss';
 import burgerMenu from '@/layout/buger-menu';
 import gravity from '@/modules/gravity';
 import sierpinskiTriangle from '@/modules/sierpinski-triangle';
+import gameOfLife from '@/modules/game-of-life';
 import useRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
 
 interface INavItem {
@@ -19,9 +20,13 @@ const navItems: INavItem[] = [
         text: 'Sierpinski triangle',
         module: sierpinskiTriangle,
     },
+    {
+        text: 'Game of Life',
+        module: gameOfLife,
+    },
 ];
 
-const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 0;
+const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 2;
 
 const app = (): void => {
     const { closeMenu } = burgerMenu();
