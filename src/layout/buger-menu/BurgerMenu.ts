@@ -1,4 +1,8 @@
-const BurgerMenu = () => {
+interface IBurgerMenu {
+    closeMenu: () => void;
+}
+
+const BurgerMenu = (): IBurgerMenu => {
     const burger = document.querySelector('#burger');
     const sidebar = document.querySelector('#sidebar');
 
@@ -6,7 +10,9 @@ const BurgerMenu = () => {
         sidebar.classList.toggle('active');
     });
 
-    const closeMenu = () => sidebar.classList.remove('active');
+    const closeMenu = (): void => {
+        sidebar.classList.remove('active');
+    };
 
     return { closeMenu };
 };
