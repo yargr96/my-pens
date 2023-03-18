@@ -3,9 +3,11 @@ import styles from './Canvas.module.scss';
 interface ICanvas {
     element: HTMLCanvasElement;
     getContext: () => CanvasRenderingContext2D;
-    setSize: () => void;
-    append: (element: HTMLElement) => void;
+    setSize: (mountElement: Element, scale?: number) => void;
+    append: (element: Element) => void;
 }
+
+export const DEFAULT_CANVAS_SCALE = 2;
 
 const Canvas = (): ICanvas => {
     const canvas: HTMLCanvasElement = document.createElement('canvas');
@@ -13,12 +15,13 @@ const Canvas = (): ICanvas => {
 
     const getContext = (): CanvasRenderingContext2D => canvas.getContext('2d');
 
-    const setSize = () => {
-        canvas.width = window.innerWidth * 2;
-        canvas.height = window.innerHeight * 2;
+    const setSize = (mountElement: Element, scale = DEFAULT_CANVAS_SCALE) => {
+        const { width, height } = mountElement.getBoundingClientRect();
+        canvas.width = width * scale;
+        canvas.height = height * scale;
     };
 
-    const append = (element: HTMLElement) => {
+    const append = (element: Element) => {
         element.append(canvas);
     };
 

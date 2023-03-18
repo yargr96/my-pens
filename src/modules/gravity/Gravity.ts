@@ -1,4 +1,4 @@
-import Canvas from '@/components/Canvas';
+import Canvas, { DEFAULT_CANVAS_SCALE } from '@/components/Canvas';
 import { IParticle, getMovedParticle } from '@/utils/Particle';
 import {
     Vector,
@@ -9,6 +9,7 @@ import {
 } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
+import { IRenderLoop } from '@/utils/useRenderLoop';
 
 const config = {
     speed: 1.4,
@@ -17,7 +18,7 @@ const config = {
     pointsCount: 500,
 };
 
-const Gravity = () => {
+const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const {
         element: canvas,
         setSize,
@@ -25,8 +26,8 @@ const Gravity = () => {
         getContext,
     } = Canvas();
 
-    setSize();
-    append(document.body);
+    setSize(mountElement);
+    append(mountElement);
 
     const context: CanvasRenderingContext2D = getContext();
     let particles: IParticle[] = [];
@@ -99,16 +100,10 @@ const Gravity = () => {
         }
     };
 
-    let renderFrameGlobal: () => void;
-
     const render = () => {
         setupParticles(config.pointsCount);
 
-        const renderFrame = () => {
-            if (renderFrame !== renderFrameGlobal) {
-                return;
-            }
-
+        const renderFrame = renderLoop.getRenderFrame(() => {
             clear();
             updateParticles();
 
@@ -124,18 +119,15 @@ const Gravity = () => {
                 );
                 context.fill();
             });
+        });
 
-            requestAnimationFrame(renderFrame);
-        };
-
-        renderFrameGlobal = renderFrame;
         renderFrame();
     };
 
     render();
 
     canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
-        mouse = multiplyVectorByNumber([offsetX, offsetY], 2);
+        mouse = multiplyVectorByNumber([offsetX, offsetY], DEFAULT_CANVAS_SCALE);
     });
 };
 

@@ -1,13 +1,4 @@
-* {
-  box-sizing: border-box;
-}
+@import 'base-styles';
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: sans-serif;
-}
+@import 'blocks/page';
+@import 'blocks/sidebar';

@@ -1,0 +1,35 @@
+@import '../colors';
+
+.sidebar {
+  border-right: 1px solid $light;
+  color: $light;
+
+  &__header {
+    padding: 10px;
+    background-color: $primary;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  &__logo-pre {
+    font-size: 12px;
+    font-style: italic;
+    margin-bottom: 2px;
+  }
+
+  &__items {
+    font-size: 18px;
+  }
+
+  &__item {
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all .2s;
+
+    &:hover {
+      background-color: $gray-500;
+      color: $dark;
+    }
+  }
+}
