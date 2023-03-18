@@ -9,9 +9,9 @@ import {
 } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
+import { IRenderLoop } from '@/utils/useRenderLoop';
 
 const CIRCLE_OFFSET = 100;
-let basePointsCount = 3;
 
 const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
     const radius: number = Math.min(...centerCoordinate) - CIRCLE_OFFSET;
@@ -31,7 +31,7 @@ const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
     return basePoints;
 };
 
-const SierpinskiTriangle = (mountElement: Element): void => {
+const SierpinskiTriangle = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const {
         element: canvas,
         setSize,
@@ -42,14 +42,14 @@ const SierpinskiTriangle = (mountElement: Element): void => {
     setSize(mountElement);
     append(mountElement);
 
+    let basePointsCount = 3;
+
     const context: CanvasRenderingContext2D = getContext();
 
     const centerCoordinate: Vector = [
         canvas.width / 2,
         canvas.height / 2,
     ];
-
-    let renderFrameGlobal: () => void;
 
     const render = (): void => {
         context.fillStyle = colors.dark;
@@ -64,11 +64,7 @@ const SierpinskiTriangle = (mountElement: Element): void => {
 
         let lastPoint: Vector = basePoints[0];
 
-        const renderFrame = (): void => {
-            if (renderFrame !== renderFrameGlobal) {
-                return;
-            }
-
+        const renderFrame = renderLoop.getRenderFrame(() => {
             for (let i = 0; i < 100; i += 1) {
                 const nextPointIndex: number = Math.floor(Math.random() * basePoints.length);
                 const nextPoint: Vector = basePoints[nextPointIndex];
@@ -78,11 +74,8 @@ const SierpinskiTriangle = (mountElement: Element): void => {
 
                 lastPoint = newPoint;
             }
+        });
 
-            requestAnimationFrame(renderFrame);
-        };
-
-        renderFrameGlobal = renderFrame;
         renderFrame();
     };
 

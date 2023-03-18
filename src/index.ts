@@ -2,6 +2,7 @@ import '@/styles/main.scss';
 
 import gravity from '@/modules/gravity';
 import sierpinskiTriangle from '@/modules/sierpinski-triangle';
+import useRenderLoop from '@/utils/useRenderLoop';
 
 const modules = {
     gravity,
@@ -13,6 +14,7 @@ interface INavElement extends HTMLElement {
 }
 
 const app = (): void => {
+    const renderLoop = useRenderLoop();
     const mountElement = document.querySelector('#content');
 
     const navElements: NodeListOf<INavElement> = document.querySelectorAll('.nav-item');
@@ -20,7 +22,8 @@ const app = (): void => {
         element.addEventListener('click', () => {
             const { nav } = element.dataset;
 
-            modules[nav](mountElement);
+            mountElement.innerHTML = '';
+            modules[nav](mountElement, renderLoop);
         });
     });
 };

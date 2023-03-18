@@ -9,6 +9,7 @@ import {
 } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
+import { IRenderLoop } from '@/utils/useRenderLoop';
 
 const config = {
     speed: 1.4,
@@ -17,7 +18,7 @@ const config = {
     pointsCount: 500,
 };
 
-const Gravity = (mountElement: Element): void => {
+const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const {
         element: canvas,
         setSize,
@@ -99,16 +100,10 @@ const Gravity = (mountElement: Element): void => {
         }
     };
 
-    let renderFrameGlobal: () => void;
-
     const render = () => {
         setupParticles(config.pointsCount);
 
-        const renderFrame = () => {
-            if (renderFrame !== renderFrameGlobal) {
-                return;
-            }
-
+        const renderFrame = renderLoop.getRenderFrame(() => {
             clear();
             updateParticles();
 
@@ -124,11 +119,8 @@ const Gravity = (mountElement: Element): void => {
                 );
                 context.fill();
             });
+        });
 
-            requestAnimationFrame(renderFrame);
-        };
-
-        renderFrameGlobal = renderFrame;
         renderFrame();
     };
 
