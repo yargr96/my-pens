@@ -21,6 +21,8 @@ const navItems: INavItem[] = [
     },
 ];
 
+const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 0;
+
 const app = (): void => {
     const { closeMenu } = burgerMenu();
 
@@ -28,21 +30,35 @@ const app = (): void => {
     const mountElement = document.querySelector('#content');
     const navItemsContainer = document.querySelector('#nav-items');
 
-    navItems[0].module(mountElement, renderLoop);
+    navItems[DEFAULT_ACTIVE_NAV_ELEMENT_INDEX].module(mountElement, renderLoop);
 
-    navItems.forEach(({ text, module }) => {
+    const navElements: Element[] = navItems.map(({ text }) => {
         const item = document.createElement('div');
         item.className = 'sidebar__item';
         item.textContent = text;
 
-        item.addEventListener('click', () => {
-            mountElement.innerHTML = '';
-            module(mountElement, renderLoop);
-            closeMenu();
+        return item;
+    });
+
+    const setActiveNavItem = (index: number): void => {
+        navElements.forEach((element) => {
+            element.classList.remove('active');
         });
 
-        navItemsContainer.appendChild(item);
+        navElements[index].classList.add('active');
+    };
+
+    navElements.forEach((element, index) => {
+        navItemsContainer.appendChild(element);
+        element.addEventListener('click', () => {
+            mountElement.innerHTML = '';
+            navItems[index].module(mountElement, renderLoop);
+            setActiveNavItem(index);
+            closeMenu();
+        });
     });
+
+    setActiveNavItem(DEFAULT_ACTIVE_NAV_ELEMENT_INDEX);
 
     mountElement.addEventListener('click', closeMenu);
 };
