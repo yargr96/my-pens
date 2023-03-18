@@ -30,8 +30,6 @@ const app = (): void => {
     const mountElement = document.querySelector('#content');
     const navItemsContainer = document.querySelector('#nav-items');
 
-    navItems[DEFAULT_ACTIVE_NAV_ELEMENT_INDEX].module(mountElement, renderLoop);
-
     const navElements: Element[] = navItems.map(({ text }) => {
         const item = document.createElement('div');
         item.className = 'sidebar__item';
@@ -48,12 +46,25 @@ const app = (): void => {
         navElements[index].classList.add('active');
     };
 
+    let activeModuleIndex = DEFAULT_ACTIVE_NAV_ELEMENT_INDEX;
+
+    const mountModule = (index: number) => {
+        mountElement.innerHTML = '';
+        navItems[index].module(mountElement, renderLoop);
+        setActiveNavItem(index);
+    };
+
+    const setActiveModule = (index: number) => {
+        activeModuleIndex = index;
+        mountModule(index);
+    };
+
+    mountModule(activeModuleIndex);
+
     navElements.forEach((element, index) => {
         navItemsContainer.appendChild(element);
         element.addEventListener('click', () => {
-            mountElement.innerHTML = '';
-            navItems[index].module(mountElement, renderLoop);
-            setActiveNavItem(index);
+            setActiveModule(index);
             closeMenu();
         });
     });
@@ -61,6 +72,14 @@ const app = (): void => {
     setActiveNavItem(DEFAULT_ACTIVE_NAV_ELEMENT_INDEX);
 
     mountElement.addEventListener('click', closeMenu);
+
+    let timerId: NodeJS.Timeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => {
+            mountModule(activeModuleIndex);
+        }, 200);
+    });
 };
 
 document.addEventListener('DOMContentLoaded', app);
