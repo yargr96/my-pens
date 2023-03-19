@@ -121,6 +121,30 @@ const testFillField = (field: FieldArray) => {
     });
 };
 
+const getNextGeneration = (pastGeneration: FieldArray): FieldArray => pastGeneration
+    .map(
+        (item, x) => item.map((isAlive, y) => {
+            const neighbours: boolean[] = [
+                pastGeneration[x]?.[y - 1],
+                pastGeneration[x + 1]?.[y - 1],
+                pastGeneration[x + 1]?.[y],
+                pastGeneration[x + 1]?.[y + 1],
+                pastGeneration[x]?.[y + 1],
+                pastGeneration[x - 1]?.[y + 1],
+                pastGeneration[x - 1]?.[y],
+                pastGeneration[x - 1]?.[y - 1],
+            ];
+
+            const aliveNeighboursCount: number = neighbours.filter((i) => i).length;
+
+            if (!isAlive) {
+                return aliveNeighboursCount === 3;
+            }
+
+            return aliveNeighboursCount === 2 || aliveNeighboursCount === 3;
+        }),
+    );
+
 const renderField = (
     context: CanvasRenderingContext2D,
     gridData: IGridData,
@@ -150,18 +174,30 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
 
     const context: CanvasRenderingContext2D = getContext();
 
+    const clear = () => {
+        context.fillStyle = colors.dark;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    };
+
     const render = () => {
         context.fillStyle = colors.dark;
         context.fillRect(0, 0, canvas.width, canvas.height);
 
         const gridData = getGridData(canvas);
 
-        renderGrid(canvas, context, gridData);
-
-        const fieldArray = getFieldArray(gridData);
-
+        let fieldArray = getFieldArray(gridData);
         testFillField(fieldArray);
-        renderField(context, gridData, fieldArray);
+
+        const renderFrame = () => {
+            clear();
+            renderGrid(canvas, context, gridData);
+            renderField(context, gridData, fieldArray);
+            fieldArray = getNextGeneration(fieldArray);
+
+            setTimeout(renderFrame, 100);
+        };
+
+        renderFrame();
     };
 
     render();
