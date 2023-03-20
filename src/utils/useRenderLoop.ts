@@ -9,6 +9,8 @@ export interface IRenderLoop {
 
 const getTimeout = (framesPerSecond: number): number => 1000 / framesPerSecond;
 
+let timerId: NodeJS.Timeout;
+
 const useRenderLoop = (): IRenderLoop => {
     let renderFrameSingleton: () => void;
     let renderFrameForPause: typeof renderFrameSingleton;
@@ -17,7 +19,7 @@ const useRenderLoop = (): IRenderLoop => {
         const timeoutFunction = framesPerSecond === 'auto'
             ? requestAnimationFrame
             : (recursiveFunction: () => void): void => {
-                setTimeout(
+                timerId = setTimeout(
                     recursiveFunction,
                     getTimeout(framesPerSecond),
                 );
@@ -41,6 +43,7 @@ const useRenderLoop = (): IRenderLoop => {
 
     const stop = () => {
         renderFrameSingleton = null;
+        clearTimeout(timerId);
     };
 
     const continueLoop = (): void => {
