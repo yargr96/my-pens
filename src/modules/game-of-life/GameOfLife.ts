@@ -1,94 +1,13 @@
-import { IRenderLoop } from '@/utils/useRenderLoop';
+import useGrid, { IGridSize } from '@/modules/game-of-life/useGrid';
 import Canvas from '@/components/Canvas';
-import colors from '@/styles/colors.module.scss';
+import { IRenderLoop } from '@/utils/useRenderLoop';
 import { Vector } from '@/utils/Vector';
 
-interface IGridData {
-    cellSize: number;
-    xCellsCount: number;
-    yCellsCount: number;
-    gridWidth: number;
-    gridHeight: number;
-    offsetLeft: number;
-    offsetTop: number;
-}
+import colors from '@/styles/colors.module.scss';
 
-const getGridData = (canvas: HTMLCanvasElement): IGridData => {
-    const cellSize = 50;
-    const xCellsCount = Math.floor(canvas.width / cellSize);
-    const yCellsCount = Math.floor(canvas.height / cellSize);
+type FieldMatrix = Array<boolean[]>;
 
-    const gridWidth = cellSize * xCellsCount;
-    const gridHeight = cellSize * yCellsCount;
-
-    const offsetLeft = (canvas.width - gridWidth) / 2;
-    const offsetTop = (canvas.height - gridHeight) / 2;
-
-    return {
-        cellSize,
-        xCellsCount,
-        yCellsCount,
-        gridWidth,
-        gridHeight,
-        offsetLeft,
-        offsetTop,
-    };
-};
-
-const renderGrid = (
-    canvas: HTMLCanvasElement,
-    context: CanvasRenderingContext2D,
-    gridData: IGridData,
-): void => {
-    const {
-        cellSize,
-        xCellsCount,
-        yCellsCount,
-        gridWidth,
-        gridHeight,
-        offsetLeft,
-        offsetTop,
-    } = gridData;
-
-    context.strokeStyle = colors.light;
-
-    context.beginPath();
-
-    for (let i = 0; i <= xCellsCount; i += 1) {
-        const xCoordinate = cellSize * i;
-        context.moveTo(xCoordinate + offsetLeft, offsetTop);
-        context.lineTo(xCoordinate + offsetLeft, gridHeight + offsetTop);
-    }
-
-    for (let i = 0; i <= yCellsCount; i += 1) {
-        const yCoordinate = cellSize * i;
-        context.moveTo(offsetLeft, yCoordinate + offsetTop);
-        context.lineTo(gridWidth + offsetLeft, yCoordinate + offsetTop);
-    }
-
-    context.stroke();
-};
-
-const renderCell = (
-    context: CanvasRenderingContext2D,
-    cell: Vector,
-    grid: IGridData,
-): void => {
-    const cellPadding = 5;
-    const cellRenderingSize = grid.cellSize - cellPadding * 2;
-
-    const position: Vector = [
-        cell[0] * grid.cellSize + grid.offsetLeft + cellPadding,
-        cell[1] * grid.cellSize + grid.offsetTop + cellPadding,
-    ];
-
-    context.fillStyle = colors.primary;
-    context.fillRect(...position, cellRenderingSize, cellRenderingSize);
-};
-
-type FieldArray = Array<Array<boolean>>;
-
-const getFieldArray = ({ xCellsCount, yCellsCount }: IGridData): FieldArray => {
+const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix => {
     const arr = [];
 
     for (let i = 0; i < xCellsCount; i += 1) {
@@ -102,12 +21,12 @@ const getFieldArray = ({ xCellsCount, yCellsCount }: IGridData): FieldArray => {
     return arr;
 };
 
-const fillCell = (cell: Vector, field: FieldArray) => {
+const fillCell = (cell: Vector, field: FieldMatrix): void => {
     // eslint-disable-next-line no-param-reassign
     field[cell[0]][cell[1]] = true;
 };
 
-const testFillField = (field: FieldArray) => {
+const testFillField = (field: FieldMatrix): void => {
     const points: Vector[] = [
         [4, 3],
         [5, 4],
@@ -121,7 +40,7 @@ const testFillField = (field: FieldArray) => {
     });
 };
 
-const getNextGeneration = (pastGeneration: FieldArray): FieldArray => pastGeneration
+const getNextGeneration = (pastGeneration: FieldMatrix): FieldMatrix => pastGeneration
     .map(
         (item, x) => item.map((isAlive, y) => {
             const neighbours: boolean[] = [
@@ -145,18 +64,14 @@ const getNextGeneration = (pastGeneration: FieldArray): FieldArray => pastGenera
         }),
     );
 
-const renderField = (
-    context: CanvasRenderingContext2D,
-    gridData: IGridData,
-    fieldArray: FieldArray,
-): void => {
-    fieldArray.forEach((item, x) => {
+const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => void): void => {
+    fieldMatrix.forEach((item, x) => {
         item.forEach((isAlive, y) => {
             if (!isAlive) {
                 return;
             }
 
-            renderCell(context, [x, y], gridData);
+            renderCell([x, y]);
         });
     });
 };
@@ -174,28 +89,30 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    const clear = () => {
-        context.fillStyle = colors.dark;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-    };
+    const render = (): void => {
+        const {
+            gridSizeParams,
+            renderGrid,
+            renderCell,
+        } = useGrid({
+            canvas,
+            context,
+            cellSize: 50,
+            colors: {
+                colorBackground: colors.dark,
+                colorGrid: colors.light,
+                colorCell: colors.primary,
+            },
+        });
 
-    const render = () => {
-        context.fillStyle = colors.dark;
-        context.fillRect(0, 0, canvas.width, canvas.height);
+        let fieldMatrix = getFieldMatrix(gridSizeParams);
+        testFillField(fieldMatrix);
 
-        const gridData = getGridData(canvas);
-
-        let fieldArray = getFieldArray(gridData);
-        testFillField(fieldArray);
-
-        const renderFrame = () => {
-            clear();
-            renderGrid(canvas, context, gridData);
-            renderField(context, gridData, fieldArray);
-            fieldArray = getNextGeneration(fieldArray);
-
-            setTimeout(renderFrame, 100);
-        };
+        const renderFrame = renderLoop.getRenderFrame(() => {
+            renderGrid();
+            renderMatrix(fieldMatrix, renderCell);
+            fieldMatrix = getNextGeneration(fieldMatrix);
+        });
 
         renderFrame();
     };
