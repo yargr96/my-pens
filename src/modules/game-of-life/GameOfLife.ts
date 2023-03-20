@@ -1,5 +1,6 @@
 import useGrid from '@/modules/game-of-life/useGrid';
 import useFieldMatrix, { FieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
+import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import { IRenderLoop } from '@/utils/useRenderLoop';
 import { Vector } from '@/utils/Vector';
@@ -17,14 +18,6 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
         });
     });
 };
-
-const initialAliveCells: Vector[] = [
-    [4, 3],
-    [5, 4],
-    [5, 5],
-    [4, 5],
-    [3, 5],
-];
 
 const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const {
@@ -63,7 +56,7 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
                 xCellsCount: gridSizeParams.xCellsCount,
                 yCellsCount: gridSizeParams.yCellsCount,
             },
-            initialAliveCells,
+            initialAliveCells: glider,
         });
 
         const renderFrame = renderLoop.getRenderFrame(() => {
