@@ -68,7 +68,7 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
             renderGrid();
             renderMatrix(getMatrix(), renderCell);
             updateGeneration();
-        });
+        }, 10);
 
         renderFrame();
     };

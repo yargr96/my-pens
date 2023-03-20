@@ -1,12 +1,25 @@
+type FramesPerSecond = number | 'auto';
+
 export interface IRenderLoop {
-    getRenderFrame: (callback: () => void) => () => void;
+    getRenderFrame: (callback: () => void, framesPerSecond?: FramesPerSecond) => () => void;
     stop: () => void;
 }
+
+const getTimeout = (framesPerSecond: number): number => 1000 / framesPerSecond;
 
 const useRenderLoop = (): IRenderLoop => {
     let renderFrameSingleton: () => void;
 
-    const getRenderFrame = (callback: () => void) => {
+    const getRenderFrame = (callback: () => void, framesPerSecond: FramesPerSecond = 'auto') => {
+        const timeoutFunction = framesPerSecond === 'auto'
+            ? requestAnimationFrame
+            : (recursiveFunction: () => void): void => {
+                setTimeout(
+                    recursiveFunction,
+                    getTimeout(framesPerSecond),
+                );
+            };
+
         const renderFrame = () => {
             if (renderFrame !== renderFrameSingleton) {
                 return;
@@ -14,7 +27,7 @@ const useRenderLoop = (): IRenderLoop => {
 
             callback();
 
-            requestAnimationFrame(renderFrame);
+            timeoutFunction(renderFrame);
         };
 
         renderFrameSingleton = renderFrame;
