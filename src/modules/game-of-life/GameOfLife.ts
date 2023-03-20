@@ -7,7 +7,6 @@ import { IRenderLoop } from '@/utils/useRenderLoop';
 import { Vector } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
-import {log} from "util";
 
 const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => void): void => {
     fieldMatrix.forEach((item, x) => {
@@ -29,75 +28,76 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
         getContext,
     } = Canvas();
 
-    setSize(mountElement);
+    setSize(mountElement, 1);
     append(mountElement);
 
     const context: CanvasRenderingContext2D = getContext();
 
-    const render = (): void => {
-        const {
-            gridSizeParams,
-            renderGrid,
-            renderCell,
-        } = useGrid({
-            canvas,
-            context,
-            cellSize: 50,
-            colors: {
-                colorBackground: colors.dark,
-                colorGrid: colors.light,
-                colorCell: colors.primary,
+    const {
+        gridSizeParams,
+        renderGrid,
+        renderCell,
+        getCellByCoordinates,
+    } = useGrid({
+        canvas,
+        context,
+        cellSize: 20,
+        colors: {
+            colorBackground: colors.dark,
+            colorGrid: colors.gray800,
+            colorCell: colors.primary,
+        },
+    });
+    const {
+        getMatrix,
+        setEmptyMatrix,
+        updateGeneration,
+        setPoints,
+    } = useFieldMatrix({
+        gridSize: {
+            xCellsCount: gridSizeParams.xCellsCount,
+            yCellsCount: gridSizeParams.yCellsCount,
+        },
+        initialAliveCells: glider,
+    });
+
+    const controls = Controls([
+        {
+            text: 'Play',
+            onClick() {
+                renderLoop.toggle();
             },
-        });
-
-        const {
-            getMatrix,
-            setEmptyMatrix,
-            updateGeneration,
-            setPoints,
-        } = useFieldMatrix({
-            gridSize: {
-                xCellsCount: gridSizeParams.xCellsCount,
-                yCellsCount: gridSizeParams.yCellsCount,
+        },
+        {
+            text: 'Clear',
+            onClick() {
+                setEmptyMatrix();
+                renderLoop.stop();
+                renderGrid();
             },
-            initialAliveCells: glider,
-        });
-
-        const controls = Controls([
-            {
-                text: 'Play',
-                onClick() {
-                    renderLoop.toggle();
-                },
+        },
+        {
+            text: 'Add figure',
+            onClick() {
+                setPoints(glider);
             },
-            {
-                text: 'Clear',
-                onClick() {
-                    setEmptyMatrix();
-                    renderLoop.stop();
-                    renderGrid();
-                },
-            },
-            {
-                text: 'Add figure',
-                onClick() {
-                    setPoints(glider);
-                },
-            },
-        ]);
+        },
+    ]);
 
-        controls.append(mountElement);
+    controls.append(mountElement);
 
-        const renderFrame = renderLoop.getRenderFrame(() => {
-            renderGrid();
-            renderMatrix(getMatrix(), renderCell);
-            updateGeneration();
-        }, 10);
+    const renderFrame = renderLoop.getRenderFrame(() => {
+        renderGrid();
+        renderMatrix(getMatrix(), renderCell);
+        updateGeneration();
+    }, 10);
 
-        renderFrame();
-    };
+    renderFrame();
 
-    render();
+    canvas.addEventListener('click', ({ offsetX, offsetY }) => {
+        const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
+        setPoints([cell]);
+    });
 };
 
 export default GameOfLife;

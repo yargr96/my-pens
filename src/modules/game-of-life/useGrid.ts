@@ -1,4 +1,4 @@
-import { Vector } from '@/utils/Vector';
+import { subtractVector, Vector } from '@/utils/Vector';
 
 interface IGridColors {
     colorBackground: string;
@@ -18,7 +18,7 @@ export interface IGridSize {
     yCellsCount: number;
 }
 
-interface IGridSizeParams extends IGridSize{
+interface IGridSizeParams extends IGridSize {
     gridWidth: number;
     gridHeight: number;
     offsetLeft: number;
@@ -29,6 +29,7 @@ interface IGrid {
     renderGrid: () => void;
     renderCell: (cell: Vector) => void;
     gridSizeParams: IGridSizeParams;
+    getCellByCoordinates: (coordinates: Vector) => Vector;
 }
 
 const getGridSizeParams = (canvas: HTMLCanvasElement, cellSize: number): IGridSizeParams => {
@@ -98,7 +99,7 @@ const useGrid = ({
     const renderCell = (cell: Vector): void => {
         const { offsetTop, offsetLeft } = gridSizeParams;
 
-        const cellPadding = 5;
+        const cellPadding = 2;
         const cellRenderingSize = cellSize - cellPadding * 2;
 
         const position: Vector = [
@@ -110,10 +111,23 @@ const useGrid = ({
         context.fillRect(...position, cellRenderingSize, cellRenderingSize);
     };
 
+    const getCellByCoordinates = (coordinates: Vector): Vector => {
+        const coordinatesWithoutOffset = subtractVector(coordinates, [
+            gridSizeParams.offsetLeft,
+            gridSizeParams.offsetTop,
+        ]);
+
+        return [
+            Math.floor(coordinatesWithoutOffset[0] / cellSize),
+            Math.floor(coordinatesWithoutOffset[1] / cellSize),
+        ];
+    };
+
     return {
         gridSizeParams,
         renderGrid,
         renderCell,
+        getCellByCoordinates,
     };
 };
 
