@@ -12,6 +12,8 @@ interface IFieldMatrix {
     getMatrix: () => FieldMatrix;
     updateGeneration: () => void;
     fillCell: (cell: Vector) => void;
+    setEmptyMatrix: () => void;
+    setPoints: (points: Vector[]) => void;
 }
 
 const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix => {
@@ -35,7 +37,13 @@ const useFieldMatrix = ({
     },
     initialAliveCells,
 }: IFieldMatrixParams): IFieldMatrix => {
-    let fieldMatrix = getFieldMatrix({ xCellsCount, yCellsCount });
+    let fieldMatrix: FieldMatrix;
+
+    const setEmptyMatrix = (): void => {
+        fieldMatrix = getFieldMatrix({ xCellsCount, yCellsCount });
+    };
+
+    setEmptyMatrix();
 
     const fillCell = (cell: Vector): void => {
         // eslint-disable-next-line no-param-reassign
@@ -73,10 +81,22 @@ const useFieldMatrix = ({
         );
     };
 
+    const setPoints = (points: Vector[]) => {
+        points.forEach(([x, y]) => {
+            if (fieldMatrix[x][y] === undefined) {
+                return;
+            }
+
+            fieldMatrix[x][y] = !fieldMatrix[x][y];
+        });
+    };
+
     return {
+        setEmptyMatrix,
         getMatrix,
         updateGeneration,
         fillCell,
+        setPoints,
     };
 };
 

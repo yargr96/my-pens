@@ -1,0 +1,26 @@
+@import "../../styles/colors";
+
+.wrapper {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: max-content;
+  display: flex;
+}
+
+.button {
+  color: $light;
+  background-color: $primary;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 6px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}

@@ -2,10 +2,12 @@ import useGrid from '@/modules/game-of-life/useGrid';
 import useFieldMatrix, { FieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
 import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
+import Controls from '@/components/Controls';
 import { IRenderLoop } from '@/utils/useRenderLoop';
 import { Vector } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
+import {log} from "util";
 
 const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => void): void => {
     fieldMatrix.forEach((item, x) => {
@@ -50,7 +52,9 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
 
         const {
             getMatrix,
+            setEmptyMatrix,
             updateGeneration,
+            setPoints,
         } = useFieldMatrix({
             gridSize: {
                 xCellsCount: gridSizeParams.xCellsCount,
@@ -58,6 +62,31 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
             },
             initialAliveCells: glider,
         });
+
+        const controls = Controls([
+            {
+                text: 'Play',
+                onClick() {
+                    renderLoop.toggle();
+                },
+            },
+            {
+                text: 'Clear',
+                onClick() {
+                    setEmptyMatrix();
+                    renderLoop.stop();
+                    renderGrid();
+                },
+            },
+            {
+                text: 'Add figure',
+                onClick() {
+                    setPoints(glider);
+                },
+            },
+        ]);
+
+        controls.append(mountElement);
 
         const renderFrame = renderLoop.getRenderFrame(() => {
             renderGrid();
@@ -69,10 +98,6 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
     };
 
     render();
-
-    canvas.addEventListener('click', () => {
-        renderLoop.toggle();
-    });
 };
 
 export default GameOfLife;
