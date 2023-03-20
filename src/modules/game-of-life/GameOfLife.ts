@@ -18,6 +18,14 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
     });
 };
 
+const initialAliveCells: Vector[] = [
+    [4, 3],
+    [5, 4],
+    [5, 5],
+    [4, 5],
+    [3, 5],
+];
+
 const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const {
         element: canvas,
@@ -55,13 +63,7 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
                 xCellsCount: gridSizeParams.xCellsCount,
                 yCellsCount: gridSizeParams.yCellsCount,
             },
-            initialAliveCells: [
-                [4, 3],
-                [5, 4],
-                [5, 5],
-                [4, 5],
-                [3, 5],
-            ],
+            initialAliveCells,
         });
 
         const renderFrame = renderLoop.getRenderFrame(() => {
@@ -74,6 +76,10 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
     };
 
     render();
+
+    canvas.addEventListener('click', () => {
+        renderLoop.toggle();
+    });
 };
 
 export default GameOfLife;
