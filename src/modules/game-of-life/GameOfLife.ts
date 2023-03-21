@@ -63,9 +63,9 @@ const GameOfLife = (mountElement: Element): void => {
     renderGrid();
 
     const { run, stop, toggle } = getRenderLoop(() => {
+        updateGeneration();
         renderGrid();
         renderMatrix(getMatrix(), renderCell);
-        updateGeneration();
     }, { framesPerSecond: 10 });
 
     const controls = Controls([
@@ -95,8 +95,11 @@ const GameOfLife = (mountElement: Element): void => {
     controls.append(mountElement);
 
     canvas.addEventListener('click', ({ offsetX, offsetY }) => {
+        stop();
         const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
         setPoints([cell]);
+        renderGrid();
+        renderMatrix(getMatrix(), renderCell);
     });
 };
 
