@@ -64,7 +64,11 @@ const GameOfLife: Module = (mountElement) => {
     renderGrid();
 
     const { run, stop, toggle } = getRenderLoop(() => {
-        updateGeneration();
+        const isUpdated = updateGeneration();
+        if (!isUpdated) {
+            stop();
+        }
+
         renderGrid();
         renderMatrix(getMatrix(), renderCell);
     }, { framesPerSecond: 10 });

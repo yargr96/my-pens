@@ -10,7 +10,7 @@ export type FieldMatrix = Array<boolean[]>;
 
 interface IFieldMatrix {
     getMatrix: () => FieldMatrix;
-    updateGeneration: () => void;
+    updateGeneration: () => boolean;
     fillCell: (cell: Vector) => void;
     setEmptyMatrix: () => void;
     setPoints: (points: Vector[]) => void;
@@ -56,7 +56,9 @@ const useFieldMatrix = ({
 
     const getMatrix = (): FieldMatrix => fieldMatrix;
 
-    const updateGeneration = (): void => {
+    const updateGeneration = (): boolean => {
+        let isUpdated = false;
+
         fieldMatrix = fieldMatrix.map(
             (item, x) => item.map((isAlive, y) => {
                 let aliveNeighboursCount = 0;
@@ -69,11 +71,19 @@ const useFieldMatrix = ({
                     }
                 }
 
-                return isAlive
+                const isAliveInNextGeneration = isAlive
                     ? aliveNeighboursCount === 2 || aliveNeighboursCount === 3
                     : aliveNeighboursCount === 3;
+
+                if (!isUpdated && isAlive !== isAliveInNextGeneration) {
+                    isUpdated = true;
+                }
+
+                return isAliveInNextGeneration;
             }),
         );
+
+        return isUpdated;
     };
 
     const setPoints = (points: Vector[]) => {
