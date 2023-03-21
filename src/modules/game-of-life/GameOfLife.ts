@@ -1,5 +1,5 @@
 import useGrid from '@/modules/game-of-life/useGrid';
-import useFieldMatrix, { FieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
+import useFieldMatrix, { FieldMatrix, getFigure } from '@/modules/game-of-life/useFieldMatrix';
 import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
@@ -54,6 +54,7 @@ const GameOfLife: Module = (mountElement) => {
         setEmptyMatrix,
         updateGeneration,
         setPoints,
+        putFigureToCenter,
     } = useFieldMatrix({
         gridSize: {
             xCellsCount: gridSizeParams.xCellsCount,
@@ -62,6 +63,8 @@ const GameOfLife: Module = (mountElement) => {
     });
 
     renderGrid();
+    putFigureToCenter(glider);
+    renderMatrix(getMatrix(), renderCell);
 
     const { run, stop, toggle } = getRenderLoop(() => {
         const isUpdated = updateGeneration();
@@ -151,6 +154,11 @@ const GameOfLife: Module = (mountElement) => {
 
     const beforeUnmount = () => {
         window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    // todo remove
+    (window as any).getFigure = () => {
+        console.log(getFigure(getMatrix()));
     };
 
     return { beforeUnmount };

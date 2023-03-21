@@ -1,9 +1,8 @@
 import { IGridSize } from '@/modules/game-of-life/useGrid';
-import { Vector } from '@/utils/Vector';
+import { addVectors, subtractVector, Vector } from '@/utils/Vector';
 
 interface IFieldMatrixParams {
     gridSize: IGridSize;
-    initialAliveCells?: Vector[];
 }
 
 export type FieldMatrix = Array<boolean[]>;
@@ -11,9 +10,9 @@ export type FieldMatrix = Array<boolean[]>;
 interface IFieldMatrix {
     getMatrix: () => FieldMatrix;
     updateGeneration: () => boolean;
-    fillCell: (cell: Vector) => void;
     setEmptyMatrix: () => void;
     setPoints: (points: Vector[]) => void;
+    putFigureToCenter: (figure: Vector[]) => void;
 }
 
 const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix => {
@@ -30,12 +29,26 @@ const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix =>
     return arr;
 };
 
+// todo remove
+export const getFigure = (fieldMatrix: FieldMatrix): Vector[] => {
+    const cells: Vector[] = [];
+
+    fieldMatrix.forEach((column, x) => {
+        column.forEach((isAlive, y) => {
+            if (isAlive) {
+                cells.push([x, y]);
+            }
+        });
+    });
+
+    return cells;
+};
+
 const useFieldMatrix = ({
     gridSize: {
         xCellsCount,
         yCellsCount,
     },
-    initialAliveCells = [],
 }: IFieldMatrixParams): IFieldMatrix => {
     let fieldMatrix: FieldMatrix;
 
@@ -44,15 +57,6 @@ const useFieldMatrix = ({
     };
 
     setEmptyMatrix();
-
-    const fillCell = (cell: Vector): void => {
-        // eslint-disable-next-line no-param-reassign
-        fieldMatrix[cell[0]][cell[1]] = true;
-    };
-
-    initialAliveCells.forEach((item) => {
-        fillCell(item);
-    });
 
     const getMatrix = (): FieldMatrix => fieldMatrix;
 
@@ -96,12 +100,44 @@ const useFieldMatrix = ({
         });
     };
 
+    const fieldCenter: Vector = [
+        Math.floor(xCellsCount / 2),
+        Math.floor(yCellsCount / 2),
+    ];
+
+    const putFigureToCenter = (figure: Vector[]): void => {
+        const figureBounds = figure.reduce((acc, [x, y]) => ({
+            top: y < acc.top ? y : acc.top,
+            right: x > acc.right ? x : acc.right,
+            bottom: y > acc.bottom ? y : acc.bottom,
+            left: x < acc.left ? x : acc.left,
+        }), {
+            top: Infinity,
+            right: -Infinity,
+            bottom: -Infinity,
+            left: Infinity,
+        });
+
+        const figureHalfSize: Vector = [
+            Math.floor((figureBounds.right - figureBounds.left) / 2),
+            Math.floor((figureBounds.bottom - figureBounds.top) / 2),
+        ];
+
+        const normalizedFigure = figure
+            .map((cell) => subtractVector(cell, [figureBounds.left, figureBounds.top]));
+
+        const centeredFigure = normalizedFigure
+            .map((cell) => addVectors(cell, subtractVector(fieldCenter, figureHalfSize)));
+
+        setPoints(centeredFigure);
+    };
+
     return {
         setEmptyMatrix,
         getMatrix,
         updateGeneration,
-        fillCell,
         setPoints,
+        putFigureToCenter,
     };
 };
 
