@@ -1,75 +1,78 @@
-type FramesPerSecond = number | 'auto';
-
-export interface IRenderLoop {
-    getRenderFrame: (callback: () => void, framesPerSecond?: FramesPerSecond) => () => void;
+interface IRenderLoop {
+    run: () => void;
     stop: () => void;
-    continueLoop: () => void;
     toggle: () => void;
+}
+
+interface IRenderLoopParams {
+    framesPerSecond?: 'auto' | number;
+}
+
+interface IRenderLoopHook {
+    getRenderLoop: (callback: () => void, params?: IRenderLoopParams) => IRenderLoop;
 }
 
 const getTimeout = (framesPerSecond: number): number => 1000 / framesPerSecond;
 
-let timerId: NodeJS.Timeout;
+export const useRenderLoop = (): IRenderLoopHook => {
+    let loopSingleton: () => void;
 
-const useRenderLoop = (): IRenderLoop => {
-    let renderFrameSingleton: () => void;
-    let renderFrameForPause: typeof renderFrameSingleton;
+    const getRenderLoop = (callback: () => void, {
+        framesPerSecond = 'auto',
+    }: IRenderLoopParams = {}): IRenderLoop => {
+        let isRunning = false;
+        let timerId: NodeJS.Timeout;
 
-    const getRenderFrame = (callback: () => void, framesPerSecond: FramesPerSecond = 'auto') => {
         const timeoutFunction = framesPerSecond === 'auto'
             ? requestAnimationFrame
-            : (recursiveFunction: () => void): void => {
-                timerId = setTimeout(
-                    recursiveFunction,
-                    getTimeout(framesPerSecond),
-                );
+            : (recursiveCallback: () => void): void => {
+                setTimeout(recursiveCallback, getTimeout(framesPerSecond));
             };
 
-        const renderFrame = () => {
-            if (renderFrame !== renderFrameSingleton) {
+        const loop = () => {
+            if (loop !== loopSingleton || !isRunning) {
                 return;
             }
 
             callback();
 
-            timeoutFunction(renderFrame);
+            timeoutFunction(loop);
         };
 
-        renderFrameSingleton = renderFrame;
-        renderFrameForPause = renderFrame;
+        loopSingleton = loop;
 
-        return renderFrame;
+        const run = () => {
+            if (isRunning) {
+                return;
+            }
+
+            isRunning = true;
+            loop();
+        };
+
+        const stop = () => {
+            isRunning = false;
+            clearTimeout(timerId);
+        };
+
+        const toggle = () => {
+            if (isRunning) {
+                stop();
+            } else {
+                run();
+            }
+        };
+
+        return {
+            run,
+            stop,
+            toggle,
+        };
     };
 
-    const stop = () => {
-        renderFrameSingleton = null;
-        clearTimeout(timerId);
-    };
-
-    const continueLoop = (): void => {
-        if (renderFrameSingleton) {
-            return;
-        }
-
-        renderFrameSingleton = renderFrameForPause;
-        renderFrameSingleton();
-    };
-
-    const toggle = () => {
-        if (renderFrameSingleton) {
-            stop();
-            return;
-        }
-
-        continueLoop();
-    };
-
-    return {
-        getRenderFrame,
-        stop,
-        continueLoop,
-        toggle,
-    };
+    return { getRenderLoop };
 };
 
-export default useRenderLoop;
+export const { getRenderLoop } = useRenderLoop();
+
+export default getRenderLoop;

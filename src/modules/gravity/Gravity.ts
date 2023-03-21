@@ -7,9 +7,10 @@ import {
     polarToCartesianVector,
     multiplyVectorByNumber,
 } from '@/utils/Vector';
+import getRenderLoop from '@/utils/useRenderLoop';
+import { Module } from '@/modules/moduleTypes';
 
 import colors from '@/styles/colors.module.scss';
-import { IRenderLoop } from '@/utils/useRenderLoop';
 
 const config = {
     speed: 1.4,
@@ -18,7 +19,7 @@ const config = {
     pointsCount: 500,
 };
 
-const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
+const Gravity: Module = (mountElement) => {
     const {
         element: canvas,
         setSize,
@@ -103,7 +104,7 @@ const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
     const render = () => {
         setupParticles(config.pointsCount);
 
-        const renderFrame = renderLoop.getRenderFrame(() => {
+        const { run } = getRenderLoop(() => {
             clear();
             updateParticles();
 
@@ -121,7 +122,7 @@ const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
             });
         });
 
-        renderFrame();
+        run();
     };
 
     render();
@@ -129,6 +130,8 @@ const Gravity = (mountElement: Element, renderLoop: IRenderLoop): void => {
     canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
         mouse = multiplyVectorByNumber([offsetX, offsetY], DEFAULT_CANVAS_SCALE);
     });
+
+    return {};
 };
 
 export default Gravity;

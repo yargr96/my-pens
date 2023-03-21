@@ -3,8 +3,9 @@ import useFieldMatrix, { FieldMatrix } from '@/modules/game-of-life/useFieldMatr
 import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
-import getRenderLoop from '@/utils/renderLoopNew';
+import getRenderLoop from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
+import { Module } from '@/modules/moduleTypes';
 
 import colors from '@/styles/colors.module.scss';
 
@@ -20,7 +21,7 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
     });
 };
 
-const GameOfLife = (mountElement: Element): void => {
+const GameOfLife: Module = (mountElement) => {
     const {
         element: canvas,
         setSize,
@@ -125,10 +126,12 @@ const GameOfLife = (mountElement: Element): void => {
         drawCell([offsetX, offsetY]);
     });
 
-    window.addEventListener('mouseup', () => {
+    const handleMouseUp = (): void => {
         isMouseDown = false;
         previousCell = null;
-    });
+    };
+
+    window.addEventListener('mouseup', handleMouseUp);
 
     canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
         if (!isMouseDown) {
@@ -141,6 +144,12 @@ const GameOfLife = (mountElement: Element): void => {
 
         drawCell([offsetX, offsetY]);
     });
+
+    const beforeUnmount = () => {
+        window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    return { beforeUnmount };
 };
 
 export default GameOfLife;
