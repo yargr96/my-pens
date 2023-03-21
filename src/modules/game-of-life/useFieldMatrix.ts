@@ -59,24 +59,19 @@ const useFieldMatrix = ({
     const updateGeneration = (): void => {
         fieldMatrix = fieldMatrix.map(
             (item, x) => item.map((isAlive, y) => {
-                const neighbours: boolean[] = [
-                    fieldMatrix[x]?.[y - 1],
-                    fieldMatrix[x + 1]?.[y - 1],
-                    fieldMatrix[x + 1]?.[y],
-                    fieldMatrix[x + 1]?.[y + 1],
-                    fieldMatrix[x]?.[y + 1],
-                    fieldMatrix[x - 1]?.[y + 1],
-                    fieldMatrix[x - 1]?.[y],
-                    fieldMatrix[x - 1]?.[y - 1],
-                ];
+                let aliveNeighboursCount = 0;
 
-                const aliveNeighboursCount: number = neighbours.filter((i) => i).length;
-
-                if (!isAlive) {
-                    return aliveNeighboursCount === 3;
+                for (let i = -1; i <= 1; i += 1) {
+                    for (let j = -1; j <= 1; j += 1) {
+                        if (!(i === 0 && j === 0) && fieldMatrix[x + i]?.[y + j]) {
+                            aliveNeighboursCount += 1;
+                        }
+                    }
                 }
 
-                return aliveNeighboursCount === 2 || aliveNeighboursCount === 3;
+                return isAlive
+                    ? aliveNeighboursCount === 2 || aliveNeighboursCount === 3
+                    : aliveNeighboursCount === 3;
             }),
         );
     };
