@@ -3,7 +3,7 @@ import { Vector } from '@/utils/Vector';
 
 interface IFieldMatrixParams {
     gridSize: IGridSize;
-    initialAliveCells: Vector[];
+    initialAliveCells?: Vector[];
 }
 
 export type FieldMatrix = Array<boolean[]>;
@@ -35,7 +35,7 @@ const useFieldMatrix = ({
         xCellsCount,
         yCellsCount,
     },
-    initialAliveCells,
+    initialAliveCells = [],
 }: IFieldMatrixParams): IFieldMatrix => {
     let fieldMatrix: FieldMatrix;
 

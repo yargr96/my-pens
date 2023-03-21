@@ -58,7 +58,6 @@ const GameOfLife = (mountElement: Element): void => {
             xCellsCount: gridSizeParams.xCellsCount,
             yCellsCount: gridSizeParams.yCellsCount,
         },
-        initialAliveCells: glider,
     });
 
     renderGrid();
