@@ -8,6 +8,8 @@ import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
 
 import colors from '@/styles/colors.module.scss';
+import getTouchCoordinates from '@/utils/touchCoordinates';
+import isTouchDevice from '@/utils/isTouchDevice';
 
 const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => void): void => {
     fieldMatrix.forEach((item, x) => {
@@ -122,25 +124,23 @@ const GameOfLife: Module = (mountElement) => {
         renderMatrix(getMatrix(), renderCell);
     };
 
-    canvas.addEventListener('mousedown', ({ offsetX, offsetY, button }) => {
-        if (button !== 0) {
-            return;
-        }
+    const handleMouseDown = (e: MouseEvent & TouchEvent) => {
+        const { offsetX, offsetY } = getTouchCoordinates(e);
 
         isMouseDown = true;
 
         stop();
         drawCell([offsetX, offsetY]);
-    });
+    };
 
     const handleMouseUp = (): void => {
         isMouseDown = false;
         previousCell = null;
     };
 
-    window.addEventListener('mouseup', handleMouseUp);
+    const handleMouseMove = (e: MouseEvent & TouchEvent) => {
+        const { offsetX, offsetY } = getTouchCoordinates(e);
 
-    canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
         if (!isMouseDown) {
             if (previousCell) {
                 previousCell = null;
@@ -150,10 +150,21 @@ const GameOfLife: Module = (mountElement) => {
         }
 
         drawCell([offsetX, offsetY]);
-    });
+    };
+
+    if (isTouchDevice()) {
+        canvas.addEventListener('touchstart', handleMouseDown);
+        window.addEventListener('touchend', handleMouseUp);
+        canvas.addEventListener('touchmove', handleMouseMove);
+    } else {
+        canvas.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mousemove', handleMouseMove);
+    }
 
     const beforeUnmount = () => {
         window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener('touchend', handleMouseUp);
     };
 
     // todo remove
