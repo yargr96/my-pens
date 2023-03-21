@@ -4,22 +4,42 @@ interface IRenderLoop {
     toggle: () => void;
 }
 
-export const useRenderLoop = () => {
-    const getRenderLoop = (callback: () => void): IRenderLoop => {
+interface IRenderLoopParams {
+    framesPerSecond?: 'auto' | number;
+}
+
+interface IRenderLoopHook {
+    getRenderLoop: (callback: () => void, params: IRenderLoopParams) => IRenderLoop;
+}
+
+const getTimeout = (framesPerSecond: number): number => 1000 / framesPerSecond;
+
+export const useRenderLoop = (): IRenderLoopHook => {
+    let loopSingleton: () => void;
+
+    const getRenderLoop = (callback: () => void, {
+        framesPerSecond = 'auto',
+    }: IRenderLoopParams = {}): IRenderLoop => {
         let isRunning = false;
         let timerId: NodeJS.Timeout;
 
+        const timeoutFunction = framesPerSecond === 'auto'
+            ? requestAnimationFrame
+            : (recursiveCallback: () => void): void => {
+                setTimeout(recursiveCallback, getTimeout(framesPerSecond));
+            };
+
         const loop = () => {
-            if (!isRunning) {
+            if (loop !== loopSingleton || !isRunning) {
                 return;
             }
 
             callback();
 
-            timerId = setTimeout(() => {
-                loop();
-            }, 500);
+            timeoutFunction(loop);
         };
+
+        loopSingleton = loop;
 
         const run = () => {
             if (isRunning) {
@@ -54,17 +74,5 @@ export const useRenderLoop = () => {
 };
 
 export const { getRenderLoop } = useRenderLoop();
-
-(() => {
-    const { run, stop, toggle } = getRenderLoop(() => {
-        console.log(1);
-    });
-
-    run();
-
-    document.addEventListener('click', () => {
-        stop();
-    });
-})();
 
 export default getRenderLoop;
