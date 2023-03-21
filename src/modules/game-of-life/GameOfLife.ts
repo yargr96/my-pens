@@ -94,7 +94,7 @@ const GameOfLife: Module = (mountElement) => {
         {
             text: 'Add figure',
             onClick() {
-                setPoints(life);
+                putFigureToCenter(life);
                 run();
             },
         },
