@@ -4,7 +4,6 @@ import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
 import getRenderLoop from '@/utils/renderLoopNew';
-import isMouseDown from '@/utils/isMouseDown';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
@@ -96,10 +95,14 @@ const GameOfLife = (mountElement: Element): void => {
     controls.append(mountElement);
 
     let previousCell: Vector = null;
+    let isMouseDown = false;
 
-    canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
-        stop();
-        const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
+    const drawCell = (coordinates: Vector) => {
+        const cell: Vector = getCellByCoordinates(coordinates);
+
+        if (!cell) {
+            return;
+        }
 
         if (previousCell && areSimilarVectors(cell, previousCell)) {
             return;
@@ -109,14 +112,26 @@ const GameOfLife = (mountElement: Element): void => {
         setPoints([cell]);
         renderGrid();
         renderMatrix(getMatrix(), renderCell);
+    };
+
+    canvas.addEventListener('mousedown', ({ offsetX, offsetY, button }) => {
+        if (button !== 0) {
+            return;
+        }
+
+        isMouseDown = true;
+
+        stop();
+        drawCell([offsetX, offsetY]);
     });
 
-    canvas.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
+        isMouseDown = false;
         previousCell = null;
     });
 
     canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
-        if (!isMouseDown()) {
+        if (!isMouseDown) {
             if (previousCell) {
                 previousCell = null;
             }
@@ -124,16 +139,7 @@ const GameOfLife = (mountElement: Element): void => {
             return;
         }
 
-        const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
-
-        if (previousCell && areSimilarVectors(cell, previousCell)) {
-            return;
-        }
-
-        previousCell = cell;
-        setPoints([cell]);
-        renderGrid();
-        renderMatrix(getMatrix(), renderCell);
+        drawCell([offsetX, offsetY]);
     });
 };
 
