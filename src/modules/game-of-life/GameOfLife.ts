@@ -3,7 +3,7 @@ import useFieldMatrix, { FieldMatrix } from '@/modules/game-of-life/useFieldMatr
 import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
-import { IRenderLoop } from '@/utils/useRenderLoop';
+import getRenderLoop from '@/utils/renderLoopNew';
 import { Vector } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
@@ -20,7 +20,7 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
     });
 };
 
-const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
+const GameOfLife = (mountElement: Element): void => {
     const {
         element: canvas,
         setSize,
@@ -61,18 +61,26 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
         initialAliveCells: glider,
     });
 
+    renderGrid();
+
+    const { run, stop, toggle } = getRenderLoop(() => {
+        renderGrid();
+        renderMatrix(getMatrix(), renderCell);
+        updateGeneration();
+    }, { framesPerSecond: 10 });
+
     const controls = Controls([
         {
             text: 'Play',
             onClick() {
-                renderLoop.toggle();
+                toggle();
             },
         },
         {
             text: 'Clear',
             onClick() {
+                stop();
                 setEmptyMatrix();
-                renderLoop.stop();
                 renderGrid();
             },
         },
@@ -80,19 +88,12 @@ const GameOfLife = (mountElement: Element, renderLoop: IRenderLoop): void => {
             text: 'Add figure',
             onClick() {
                 setPoints(glider);
+                run();
             },
         },
     ]);
 
     controls.append(mountElement);
-
-    const renderFrame = renderLoop.getRenderFrame(() => {
-        renderGrid();
-        renderMatrix(getMatrix(), renderCell);
-        updateGeneration();
-    }, 10);
-
-    renderFrame();
 
     canvas.addEventListener('click', ({ offsetX, offsetY }) => {
         const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
