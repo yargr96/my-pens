@@ -1,6 +1,6 @@
 import useGrid from '@/modules/game-of-life/useGrid';
 import useFieldMatrix, { FieldMatrix, getFigure } from '@/modules/game-of-life/useFieldMatrix';
-import { glider } from '@/modules/game-of-life/figures';
+import life from '@/modules/game-of-life/figures/life';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
 import getRenderLoop from '@/utils/useRenderLoop';
@@ -63,7 +63,7 @@ const GameOfLife: Module = (mountElement) => {
     });
 
     renderGrid();
-    putFigureToCenter(glider);
+    putFigureToCenter(life);
     renderMatrix(getMatrix(), renderCell);
 
     const { run, stop, toggle } = getRenderLoop(() => {
@@ -94,7 +94,7 @@ const GameOfLife: Module = (mountElement) => {
         {
             text: 'Add figure',
             onClick() {
-                setPoints(glider);
+                setPoints(life);
                 run();
             },
         },

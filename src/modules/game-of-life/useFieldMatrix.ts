@@ -92,7 +92,7 @@ const useFieldMatrix = ({
 
     const setPoints = (points: Vector[]) => {
         points.forEach(([x, y]) => {
-            if (fieldMatrix[x][y] === undefined) {
+            if (fieldMatrix[x]?.[y] === undefined) {
                 return;
             }
 

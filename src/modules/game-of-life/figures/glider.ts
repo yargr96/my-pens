@@ -1,6 +1,6 @@
 import { Vector } from '@/utils/Vector';
 
-export const glider: Vector[] = [
+const glider: Vector[] = [
     [4, 3],
     [5, 4],
     [5, 5],
