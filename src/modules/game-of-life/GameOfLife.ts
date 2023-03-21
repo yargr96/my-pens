@@ -4,7 +4,8 @@ import { glider } from '@/modules/game-of-life/figures';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
 import getRenderLoop from '@/utils/renderLoopNew';
-import { Vector } from '@/utils/Vector';
+import isMouseDown from '@/utils/isMouseDown';
+import { areSimilarVectors, Vector } from '@/utils/Vector';
 
 import colors from '@/styles/colors.module.scss';
 
@@ -94,9 +95,42 @@ const GameOfLife = (mountElement: Element): void => {
 
     controls.append(mountElement);
 
-    canvas.addEventListener('click', ({ offsetX, offsetY }) => {
+    let previousCell: Vector = null;
+
+    canvas.addEventListener('mousedown', ({ offsetX, offsetY }) => {
         stop();
         const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
+
+        if (previousCell && areSimilarVectors(cell, previousCell)) {
+            return;
+        }
+
+        previousCell = cell;
+        setPoints([cell]);
+        renderGrid();
+        renderMatrix(getMatrix(), renderCell);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        previousCell = null;
+    });
+
+    canvas.addEventListener('mousemove', ({ offsetX, offsetY }) => {
+        if (!isMouseDown()) {
+            if (previousCell) {
+                previousCell = null;
+            }
+
+            return;
+        }
+
+        const cell: Vector = getCellByCoordinates([offsetX, offsetY]);
+
+        if (previousCell && areSimilarVectors(cell, previousCell)) {
+            return;
+        }
+
+        previousCell = cell;
         setPoints([cell]);
         renderGrid();
         renderMatrix(getMatrix(), renderCell);
