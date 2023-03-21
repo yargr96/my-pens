@@ -117,10 +117,20 @@ const useGrid = ({
             gridSizeParams.offsetTop,
         ]);
 
-        return [
+        if (coordinatesWithoutOffset[0] < 0 || coordinatesWithoutOffset[1] < 0) {
+            return null;
+        }
+
+        const cell: Vector = [
             Math.floor(coordinatesWithoutOffset[0] / cellSize),
             Math.floor(coordinatesWithoutOffset[1] / cellSize),
         ];
+
+        if (cell[0] >= gridSizeParams.xCellsCount || cell[1] >= gridSizeParams.yCellsCount) {
+            return null;
+        }
+
+        return cell;
     };
 
     return {
