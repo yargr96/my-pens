@@ -2,7 +2,7 @@ import useGrid from '@/modules/game-of-life/useGrid';
 import useFieldMatrix, { FieldMatrix, getFigure } from '@/modules/game-of-life/useFieldMatrix';
 import life from '@/modules/game-of-life/figures/life';
 import Canvas from '@/components/Canvas';
-import Controls from '@/components/Controls';
+import Controls, { ControlsProps } from '@/components/Controls';
 import getRenderLoop from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
@@ -22,6 +22,33 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
         });
     });
 };
+
+const controlsData: ControlsProps = [
+    [
+        {
+            key: 'play',
+            text: 'Play',
+        },
+        {
+            key: 'clear',
+            text: 'Clear',
+        },
+        {
+            key: 'addFigure',
+            text: 'Add figure',
+        },
+    ],
+    [
+        {
+            key: 'cellSize10',
+            text: 'Cell size = 10',
+        },
+        {
+            key: 'cellSize20',
+            text: 'Cell size = 20',
+        },
+    ],
+];
 
 const GameOfLife: Module = (mountElement) => {
     const {
@@ -78,41 +105,23 @@ const GameOfLife: Module = (mountElement) => {
         renderMatrix(getMatrix(), renderCell);
     }, { framesPerSecond: 10 });
 
-    const controls = Controls([
-        [
-            {
-                text: 'Play',
-                onClick() {
-                    toggle();
-                },
-            },
-            {
-                text: 'Clear',
-                onClick() {
-                    stop();
-                    setEmptyMatrix();
-                    renderGrid();
-                },
-            },
-            {
-                text: 'Add figure',
-                onClick() {
-                    putFigureToCenter(life);
-                    run();
-                },
-            },
-        ],
-        [
-            {
-                text: 'Cell size = 10',
-            },
-            {
-                text: 'Cell size = 20',
-            },
-        ],
-    ]);
-
+    const controls = Controls(controlsData);
     controls.append(mountElement);
+
+    controls.elements.play.addEventListener('click', () => {
+        toggle();
+    });
+
+    controls.elements.clear.addEventListener('click', () => {
+        putFigureToCenter(life);
+        run();
+    });
+
+    controls.elements.addFigure.addEventListener('click', () => {
+        stop();
+        setEmptyMatrix();
+        renderGrid();
+    });
 
     let previousCell: Vector = null;
     let isMouseDown = false;

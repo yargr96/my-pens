@@ -1,23 +1,33 @@
 import styles from '@/components/Controls/Controls.module.scss';
 
-interface IControlItem {
+interface IControlItemProps {
+    key: string;
     text: string;
-    onClick?: () => void;
+}
+
+interface IElementsMap {
+    [key: string]: Element,
 }
 
 interface IControls {
     append: (element: Element) => void;
+    elements: IElementsMap;
 }
 
-const Controls = (items: Array<IControlItem[]>): IControls => {
+export type ControlsProps = Array<IControlItemProps[]>;
+
+const Controls = (items: ControlsProps): IControls => {
     const wrapper = document.createElement('div');
     wrapper.className = styles.wrapper;
 
-    const rows = items.map((row) => row.map(({ text, onClick = () => {} }) => {
+    const elements: IElementsMap = {};
+
+    const rows = items.map((row) => row.map(({ key, text }) => {
         const button = document.createElement('button');
         button.className = styles.button;
         button.textContent = text;
-        button.addEventListener('click', onClick);
+
+        elements[key] = button;
 
         return button;
     }));
@@ -38,6 +48,7 @@ const Controls = (items: Array<IControlItem[]>): IControls => {
     };
 
     return {
+        elements,
         append,
     };
 };

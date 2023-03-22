@@ -1,1 +1,2 @@
-export { default, DEFAULT_CANVAS_SCALE } from './Canvas';
+export * from '@/components/Canvas/Canvas';
+export { default } from '@/components/Canvas/Canvas';
