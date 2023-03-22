@@ -1,0 +1,36 @@
+@import "../../styles/colors";
+
+.wrapper {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  left: 20px;
+  margin-left: auto;
+  max-width: max-content;
+}
+
+.row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.button {
+  color: $light;
+  background-color: $primary;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 6px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  flex-grow: 1;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}

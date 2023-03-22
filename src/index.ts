@@ -3,14 +3,19 @@ import '@/styles/main.scss';
 import burgerMenu from '@/layout/buger-menu';
 import gravity from '@/modules/gravity';
 import sierpinskiTriangle from '@/modules/sierpinski-triangle';
-import useRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
+import gameOfLife from '@/modules/game-of-life';
+import { IModule, Module } from '@/modules/moduleTypes';
 
 interface INavItem {
     text: string;
-    module: (mountElement: Element, renderLoop: IRenderLoop) => void;
+    module: Module;
 }
 
 const navItems: INavItem[] = [
+    {
+        text: 'Game of Life',
+        module: gameOfLife,
+    },
     {
         text: 'Gravity',
         module: gravity,
@@ -26,7 +31,6 @@ const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 0;
 const app = (): void => {
     const { closeMenu } = burgerMenu();
 
-    const renderLoop = useRenderLoop();
     const mountElement = document.querySelector('#content');
     const navItemsContainer = document.querySelector('#nav-items');
 
@@ -47,10 +51,12 @@ const app = (): void => {
     };
 
     let activeModuleIndex = DEFAULT_ACTIVE_NAV_ELEMENT_INDEX;
+    let activeModule: IModule;
 
     const mountModule = (index: number) => {
+        activeModule?.beforeUnmount?.();
         mountElement.innerHTML = '';
-        navItems[index].module(mountElement, renderLoop);
+        activeModule = navItems[index].module(mountElement);
         setActiveNavItem(index);
     };
 

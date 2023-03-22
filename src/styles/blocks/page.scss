@@ -2,7 +2,8 @@
 
 .page {
   display: flex;
-  height: 100vh;
+  height: 100%;
+  overflow-x: hidden;
 
   &__sidebar {
     width: 300px;

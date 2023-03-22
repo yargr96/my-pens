@@ -7,9 +7,10 @@ import {
     polarToCartesianVector,
     CLOCK_ANGLE_OFFSET,
 } from '@/utils/Vector';
+import getRenderLoop from '@/utils/useRenderLoop';
+import { Module } from '@/modules/moduleTypes';
 
 import colors from '@/styles/colors.module.scss';
-import { IRenderLoop } from '@/utils/useRenderLoop';
 
 const CIRCLE_OFFSET = 100;
 
@@ -31,7 +32,7 @@ const getBasePoints = (count: number, centerCoordinate: Vector): Vector[] => {
     return basePoints;
 };
 
-const SierpinskiTriangle = (mountElement: Element, renderLoop: IRenderLoop): void => {
+const SierpinskiTriangle: Module = (mountElement) => {
     const {
         element: canvas,
         setSize,
@@ -64,7 +65,7 @@ const SierpinskiTriangle = (mountElement: Element, renderLoop: IRenderLoop): voi
 
         let lastPoint: Vector = basePoints[0];
 
-        const renderFrame = renderLoop.getRenderFrame(() => {
+        const { run } = getRenderLoop(() => {
             for (let i = 0; i < 100; i += 1) {
                 const nextPointIndex: number = Math.floor(Math.random() * basePoints.length);
                 const nextPoint: Vector = basePoints[nextPointIndex];
@@ -76,7 +77,7 @@ const SierpinskiTriangle = (mountElement: Element, renderLoop: IRenderLoop): voi
             }
         });
 
-        renderFrame();
+        run();
     };
 
     render();
@@ -89,6 +90,8 @@ const SierpinskiTriangle = (mountElement: Element, renderLoop: IRenderLoop): voi
         basePointsCount = Number((target as HTMLInputElement).value);
         render();
     });
+
+    return {};
 };
 
 export default SierpinskiTriangle;

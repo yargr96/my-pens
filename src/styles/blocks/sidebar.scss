@@ -3,7 +3,7 @@
 .sidebar {
   border-right: 1px solid $light;
   color: $light;
-  transform: translateX(-100%);
+  transform: translateX(calc(-100% - 10px));
   transition: transform .3s;
   position: absolute;
   top: 0;

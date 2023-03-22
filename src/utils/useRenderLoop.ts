@@ -1,34 +1,88 @@
+export type FramesPerSecond = 'auto' | number;
+
 export interface IRenderLoop {
-    getRenderFrame: (callback: () => void) => () => void;
+    run: () => void;
     stop: () => void;
+    toggle: () => void;
+    setFramesPerSecond: (fps: FramesPerSecond) => void;
 }
 
-const useRenderLoop = (): IRenderLoop => {
-    let renderFrameSingleton: () => void;
+interface IRenderLoopParams {
+    framesPerSecond?: FramesPerSecond;
+}
 
-    const getRenderFrame = (callback: () => void) => {
-        const renderFrame = () => {
-            if (renderFrame !== renderFrameSingleton) {
+interface IRenderLoopHook {
+    getRenderLoop: (callback: () => void, params?: IRenderLoopParams) => IRenderLoop;
+}
+
+const getTimeout = (framesPerSecond: number): number => 1000 / framesPerSecond;
+
+export const useRenderLoop = (): IRenderLoopHook => {
+    let loopSingleton: () => void;
+
+    const getRenderLoop = (callback: () => void, {
+        framesPerSecond = 'auto',
+    }: IRenderLoopParams = {}): IRenderLoop => {
+        let isRunning = false;
+        let timerId: NodeJS.Timeout;
+
+        const getTimeoutFunction = (fps: FramesPerSecond) => (fps === 'auto'
+            ? requestAnimationFrame
+            : (recursiveCallback: () => void): void => {
+                setTimeout(recursiveCallback, getTimeout(fps));
+            });
+
+        let timeoutFunction = getTimeoutFunction(framesPerSecond);
+
+        const loop = () => {
+            if (loop !== loopSingleton || !isRunning) {
                 return;
             }
 
             callback();
 
-            requestAnimationFrame(renderFrame);
+            timeoutFunction(loop);
         };
 
-        renderFrameSingleton = renderFrame;
-        return renderFrame;
+        loopSingleton = loop;
+
+        const run = () => {
+            if (isRunning) {
+                return;
+            }
+
+            isRunning = true;
+            loop();
+        };
+
+        const stop = () => {
+            isRunning = false;
+            clearTimeout(timerId);
+        };
+
+        const toggle = () => {
+            if (isRunning) {
+                stop();
+            } else {
+                run();
+            }
+        };
+
+        const setFramesPerSecond = (fps: FramesPerSecond) => {
+            timeoutFunction = getTimeoutFunction(fps);
+        };
+
+        return {
+            run,
+            stop,
+            toggle,
+            setFramesPerSecond,
+        };
     };
 
-    const stop = () => {
-        renderFrameSingleton = () => {};
-    };
-
-    return {
-        getRenderFrame,
-        stop,
-    };
+    return { getRenderLoop };
 };
 
-export default useRenderLoop;
+export const { getRenderLoop } = useRenderLoop();
+
+export default getRenderLoop;
