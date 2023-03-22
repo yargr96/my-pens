@@ -15,8 +15,8 @@ const mainControls: IControlItemProps[] = [
         text: 'Clear',
     },
     {
-        key: 'addFigure',
-        text: 'Add figure',
+        key: 'randomFill',
+        text: 'Random fill',
     },
 ];
 

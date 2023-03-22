@@ -99,9 +99,10 @@ const GameOfLife: Module = (mountElement) => {
         grid.renderGrid();
     });
 
-    controls.elements.addFigure.addEventListener('click', () => {
-        fieldMatrix.putFigureToCenter(life);
-        renderLoop.run();
+    controls.elements.randomFill.addEventListener('click', () => {
+        grid.renderGrid();
+        fieldMatrix.randomFill();
+        renderMatrix(fieldMatrix.getMatrix(), grid.renderCell);
     });
 
     const changeSize = (size: number): void => {

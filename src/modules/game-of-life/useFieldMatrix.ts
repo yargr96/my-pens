@@ -13,6 +13,7 @@ export interface IFieldMatrix {
     setEmptyMatrix: () => void;
     setPoints: (points: Vector[]) => void;
     putFigureToCenter: (figure: Vector[]) => void;
+    randomFill: () => void;
 }
 
 const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix => {
@@ -132,12 +133,17 @@ const useFieldMatrix = ({
         setPoints(centeredFigure);
     };
 
+    const randomFill = (): void => {
+        fieldMatrix = fieldMatrix.map((row) => row.map(() => Math.random() < 0.333));
+    };
+
     return {
         setEmptyMatrix,
         getMatrix,
         updateGeneration,
         setPoints,
         putFigureToCenter,
+        randomFill,
     };
 };
 
