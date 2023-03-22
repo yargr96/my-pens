@@ -1,11 +1,14 @@
+export type FramesPerSecond = 'auto' | number;
+
 export interface IRenderLoop {
     run: () => void;
     stop: () => void;
     toggle: () => void;
+    setFramesPerSecond: (fps: FramesPerSecond) => void;
 }
 
 interface IRenderLoopParams {
-    framesPerSecond?: 'auto' | number;
+    framesPerSecond?: FramesPerSecond;
 }
 
 interface IRenderLoopHook {
@@ -23,11 +26,13 @@ export const useRenderLoop = (): IRenderLoopHook => {
         let isRunning = false;
         let timerId: NodeJS.Timeout;
 
-        const timeoutFunction = framesPerSecond === 'auto'
+        const getTimeoutFunction = (fps: FramesPerSecond) => fps === 'auto'
             ? requestAnimationFrame
             : (recursiveCallback: () => void): void => {
-                setTimeout(recursiveCallback, getTimeout(framesPerSecond));
+                setTimeout(recursiveCallback, getTimeout(fps));
             };
+
+        let timeoutFunction = getTimeoutFunction(framesPerSecond);
 
         const loop = () => {
             if (loop !== loopSingleton || !isRunning) {
@@ -63,10 +68,15 @@ export const useRenderLoop = (): IRenderLoopHook => {
             }
         };
 
+        const setFramesPerSecond = (fps: FramesPerSecond) => {
+            timeoutFunction = getTimeoutFunction(fps);
+        };
+
         return {
             run,
             stop,
             toggle,
+            setFramesPerSecond,
         };
     };
 

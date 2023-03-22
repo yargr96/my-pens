@@ -5,8 +5,9 @@ import useFieldMatrix, {
     getFigure,
 } from '@/modules/game-of-life/useFieldMatrix';
 import life from '@/modules/game-of-life/figures/life';
+import controlsData, {sizeControls, speedControls} from '@/modules/game-of-life/controls';
 import Canvas from '@/components/Canvas';
-import Controls, { ControlsProps, IControlItemProps } from '@/components/Controls';
+import Controls from '@/components/Controls';
 import getRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
@@ -26,46 +27,6 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
         });
     });
 };
-
-interface ISizeControlItem extends IControlItemProps {
-    value: number;
-}
-
-const sizeControls: ISizeControlItem[] = [
-    {
-        key: 'cellSize5',
-        text: 'Small cells',
-        value: 5,
-    },
-    {
-        key: 'cellSize10',
-        text: 'Medium cells',
-        value: 10,
-    },
-    {
-        key: 'cellSize20',
-        text: 'Large cells',
-        value: 20,
-    },
-];
-
-const controlsData: ControlsProps = [
-    [
-        {
-            key: 'play',
-            text: 'Play',
-        },
-        {
-            key: 'clear',
-            text: 'Clear',
-        },
-        {
-            key: 'addFigure',
-            text: 'Add figure',
-        },
-    ],
-    sizeControls,
-];
 
 const GameOfLife: Module = (mountElement) => {
     const {
@@ -155,6 +116,12 @@ const GameOfLife: Module = (mountElement) => {
     sizeControls.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             changeSize(value);
+        });
+    });
+
+    speedControls.forEach(({ key, value }) => {
+        controls.elements[key].addEventListener('click', () => {
+            renderLoop.setFramesPerSecond(value);
         });
     });
 
