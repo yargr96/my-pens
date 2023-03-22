@@ -79,27 +79,37 @@ const GameOfLife: Module = (mountElement) => {
     }, { framesPerSecond: 10 });
 
     const controls = Controls([
-        {
-            text: 'Play',
-            onClick() {
-                toggle();
+        [
+            {
+                text: 'Play',
+                onClick() {
+                    toggle();
+                },
             },
-        },
-        {
-            text: 'Clear',
-            onClick() {
-                stop();
-                setEmptyMatrix();
-                renderGrid();
+            {
+                text: 'Clear',
+                onClick() {
+                    stop();
+                    setEmptyMatrix();
+                    renderGrid();
+                },
             },
-        },
-        {
-            text: 'Add figure',
-            onClick() {
-                putFigureToCenter(life);
-                run();
+            {
+                text: 'Add figure',
+                onClick() {
+                    putFigureToCenter(life);
+                    run();
+                },
             },
-        },
+        ],
+        [
+            {
+                text: 'Cell size = 10',
+            },
+            {
+                text: 'Cell size = 20',
+            },
+        ],
     ]);
 
     controls.append(mountElement);
