@@ -34,17 +34,17 @@ interface ISizeControlItem extends IControlItemProps {
 const sizeControls: ISizeControlItem[] = [
     {
         key: 'cellSize5',
-        text: 'Cell size = 5',
+        text: 'Small cells',
         value: 5,
     },
     {
         key: 'cellSize10',
-        text: 'Cell size = 10',
+        text: 'Medium cells',
         value: 10,
     },
     {
         key: 'cellSize20',
-        text: 'Cell size = 20',
+        text: 'Large cells',
         value: 20,
     },
 ];
