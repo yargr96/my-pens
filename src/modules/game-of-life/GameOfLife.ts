@@ -1,9 +1,13 @@
-import useGrid from '@/modules/game-of-life/useGrid';
-import useFieldMatrix, { FieldMatrix, getFigure } from '@/modules/game-of-life/useFieldMatrix';
+import useGrid, { IGrid } from '@/modules/game-of-life/useGrid';
+import useFieldMatrix, {
+    FieldMatrix,
+    IFieldMatrix,
+    getFigure,
+} from '@/modules/game-of-life/useFieldMatrix';
 import life from '@/modules/game-of-life/figures/life';
 import Canvas from '@/components/Canvas';
 import Controls, { ControlsProps } from '@/components/Controls';
-import getRenderLoop from '@/utils/useRenderLoop';
+import getRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
 
@@ -63,71 +67,91 @@ const GameOfLife: Module = (mountElement) => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    const {
-        gridSizeParams,
-        renderGrid,
-        renderCell,
-        getCellByCoordinates,
-    } = useGrid({
-        canvas,
-        context,
+    let grid: IGrid = null;
+    let fieldMatrix: IFieldMatrix = null;
+    let renderLoop: IRenderLoop = null;
+
+    const config = {
         cellSize: 20,
-        colors: {
-            colorBackground: colors.dark,
-            colorGrid: colors.gray800,
-            colorCell: colors.primary,
-        },
-    });
-    const {
-        getMatrix,
-        setEmptyMatrix,
-        updateGeneration,
-        setPoints,
-        putFigureToCenter,
-    } = useFieldMatrix({
-        gridSize: {
-            xCellsCount: gridSizeParams.xCellsCount,
-            yCellsCount: gridSizeParams.yCellsCount,
-        },
-    });
+    };
 
-    renderGrid();
-    putFigureToCenter(life);
-    renderMatrix(getMatrix(), renderCell);
+    const render = () => {
+        grid = useGrid({
+            canvas,
+            context,
+            cellSize: config.cellSize,
+            colors: {
+                colorBackground: colors.dark,
+                colorGrid: colors.gray800,
+                colorCell: colors.primary,
+            },
+        });
 
-    const { run, stop, toggle } = getRenderLoop(() => {
-        const isUpdated = updateGeneration();
-        if (!isUpdated) {
-            stop();
-        }
+        fieldMatrix = useFieldMatrix({
+            gridSize: {
+                xCellsCount: grid.gridSizeParams.xCellsCount,
+                yCellsCount: grid.gridSizeParams.yCellsCount,
+            },
+        });
 
-        renderGrid();
-        renderMatrix(getMatrix(), renderCell);
-    }, { framesPerSecond: 10 });
+        renderLoop = getRenderLoop(() => {
+            const isUpdated = fieldMatrix.updateGeneration();
+            if (!isUpdated) {
+                renderLoop.stop();
+            }
+
+            grid.renderGrid();
+            renderMatrix(fieldMatrix.getMatrix(), grid.renderCell);
+        }, { framesPerSecond: 10 });
+
+        grid.renderGrid();
+        fieldMatrix.putFigureToCenter(life);
+        renderMatrix(fieldMatrix.getMatrix(), grid.renderCell);
+    };
+
+    render();
 
     const controls = Controls(controlsData);
     controls.append(mountElement);
 
     controls.elements.play.addEventListener('click', () => {
-        toggle();
+        renderLoop.toggle();
     });
 
     controls.elements.clear.addEventListener('click', () => {
-        stop();
-        setEmptyMatrix();
-        renderGrid();
+        renderLoop.stop();
+        fieldMatrix.setEmptyMatrix();
+        grid.renderGrid();
     });
 
     controls.elements.addFigure.addEventListener('click', () => {
-        putFigureToCenter(life);
-        run();
+        fieldMatrix.putFigureToCenter(life);
+        renderLoop.run();
+    });
+
+    const changeSize = (size: number): void => {
+        if (config.cellSize === size) {
+            return;
+        }
+
+        config.cellSize = size;
+        render();
+    };
+
+    [
+        { key: 'cellSize10', size: 10 },
+        { key: 'cellSize20', size: 20 },
+    ].forEach(({ key, size }) => {
+        controls.elements[key].addEventListener('click', () => {
+            changeSize(size);
+        });
     });
 
     let previousCell: Vector = null;
     let isMouseDown = false;
 
     const drawCell = (coordinates: Vector) => {
-        const cell: Vector = getCellByCoordinates(coordinates);
+        const cell: Vector = grid.getCellByCoordinates(coordinates);
 
         if (!cell) {
             return;
@@ -138,9 +162,9 @@ const GameOfLife: Module = (mountElement) => {
         }
 
         previousCell = cell;
-        setPoints([cell]);
-        renderGrid();
-        renderMatrix(getMatrix(), renderCell);
+        fieldMatrix.setPoints([cell]);
+        grid.renderGrid();
+        renderMatrix(fieldMatrix.getMatrix(), grid.renderCell);
     };
 
     const handleMouseDown = (e: MouseEvent & TouchEvent) => {
@@ -148,7 +172,7 @@ const GameOfLife: Module = (mountElement) => {
 
         isMouseDown = true;
 
-        stop();
+        renderLoop.stop();
         drawCell([offsetX, offsetY]);
     };
 
@@ -188,7 +212,7 @@ const GameOfLife: Module = (mountElement) => {
 
     // todo remove
     (window as any).getFigure = () => {
-        console.log(getFigure(getMatrix()));
+        console.log(getFigure(fieldMatrix.getMatrix()));
     };
 
     return { beforeUnmount };

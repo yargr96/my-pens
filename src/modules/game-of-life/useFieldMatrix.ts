@@ -7,7 +7,7 @@ interface IFieldMatrixParams {
 
 export type FieldMatrix = Array<boolean[]>;
 
-interface IFieldMatrix {
+export interface IFieldMatrix {
     getMatrix: () => FieldMatrix;
     updateGeneration: () => boolean;
     setEmptyMatrix: () => void;

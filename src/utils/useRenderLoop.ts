@@ -1,4 +1,4 @@
-interface IRenderLoop {
+export interface IRenderLoop {
     run: () => void;
     stop: () => void;
     toggle: () => void;

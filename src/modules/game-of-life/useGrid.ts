@@ -25,7 +25,7 @@ interface IGridSizeParams extends IGridSize {
     offsetTop: number;
 }
 
-interface IGrid {
+export interface IGrid {
     renderGrid: () => void;
     renderCell: (cell: Vector) => void;
     gridSizeParams: IGridSizeParams;
