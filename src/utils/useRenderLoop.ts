@@ -26,11 +26,11 @@ export const useRenderLoop = (): IRenderLoopHook => {
         let isRunning = false;
         let timerId: NodeJS.Timeout;
 
-        const getTimeoutFunction = (fps: FramesPerSecond) => fps === 'auto'
+        const getTimeoutFunction = (fps: FramesPerSecond) => (fps === 'auto'
             ? requestAnimationFrame
             : (recursiveCallback: () => void): void => {
                 setTimeout(recursiveCallback, getTimeout(fps));
-            };
+            });
 
         let timeoutFunction = getTimeoutFunction(framesPerSecond);
 
