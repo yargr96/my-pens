@@ -113,14 +113,14 @@ const GameOfLife: Module = (mountElement) => {
     });
 
     controls.elements.clear.addEventListener('click', () => {
-        putFigureToCenter(life);
-        run();
-    });
-
-    controls.elements.addFigure.addEventListener('click', () => {
         stop();
         setEmptyMatrix();
         renderGrid();
+    });
+
+    controls.elements.addFigure.addEventListener('click', () => {
+        putFigureToCenter(life);
+        run();
     });
 
     let previousCell: Vector = null;
