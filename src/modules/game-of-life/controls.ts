@@ -23,17 +23,17 @@ const mainControls: IControlItemProps[] = [
 export const sizeControls: ISizeControlItem[] = [
     {
         key: 'cellSizeSmall',
-        text: 'Small cells',
+        text: 'Cells small',
         value: 5,
     },
     {
         key: 'cellSizeMedium',
-        text: 'Medium cells',
+        text: 'Cells medium',
         value: 10,
     },
     {
         key: 'cellSizeLarge',
-        text: 'Large cells',
+        text: 'Cells large',
         value: 20,
     },
 ];
