@@ -6,7 +6,7 @@ import useFieldMatrix, {
 } from '@/modules/game-of-life/useFieldMatrix';
 import life from '@/modules/game-of-life/figures/life';
 import Canvas from '@/components/Canvas';
-import Controls, { ControlsProps } from '@/components/Controls';
+import Controls, { ControlsProps, IControlItemProps } from '@/components/Controls';
 import getRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
@@ -27,6 +27,28 @@ const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => vo
     });
 };
 
+interface ISizeControlItem extends IControlItemProps {
+    value: number;
+}
+
+const sizeControls: ISizeControlItem[] = [
+    {
+        key: 'cellSize5',
+        text: 'Cell size = 5',
+        value: 5,
+    },
+    {
+        key: 'cellSize10',
+        text: 'Cell size = 10',
+        value: 10,
+    },
+    {
+        key: 'cellSize20',
+        text: 'Cell size = 20',
+        value: 20,
+    },
+];
+
 const controlsData: ControlsProps = [
     [
         {
@@ -42,16 +64,7 @@ const controlsData: ControlsProps = [
             text: 'Add figure',
         },
     ],
-    [
-        {
-            key: 'cellSize10',
-            text: 'Cell size = 10',
-        },
-        {
-            key: 'cellSize20',
-            text: 'Cell size = 20',
-        },
-    ],
+    sizeControls,
 ];
 
 const GameOfLife: Module = (mountElement) => {
@@ -80,6 +93,7 @@ const GameOfLife: Module = (mountElement) => {
             canvas,
             context,
             cellSize: config.cellSize,
+            showGrid: config.cellSize >= 10,
             colors: {
                 colorBackground: colors.dark,
                 colorGrid: colors.gray800,
@@ -138,12 +152,9 @@ const GameOfLife: Module = (mountElement) => {
         render();
     };
 
-    [
-        { key: 'cellSize10', size: 10 },
-        { key: 'cellSize20', size: 20 },
-    ].forEach(({ key, size }) => {
+    sizeControls.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            changeSize(size);
+            changeSize(value);
         });
     });
 

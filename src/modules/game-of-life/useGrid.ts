@@ -10,6 +10,7 @@ interface IGridParams {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
     cellSize: number;
+    showGrid: boolean;
     colors: IGridColors;
 }
 
@@ -52,10 +53,23 @@ const getGridSizeParams = (canvas: HTMLCanvasElement, cellSize: number): IGridSi
     };
 };
 
+const getCellPadding = (cellSize: number): number => {
+    if (cellSize < 10) {
+        return 0;
+    }
+
+    if (cellSize < 20) {
+        return 1;
+    }
+
+    return 2;
+};
+
 const useGrid = ({
     canvas,
     context,
     cellSize,
+    showGrid,
     colors: {
         colorBackground,
         colorGrid,
@@ -67,6 +81,10 @@ const useGrid = ({
     const renderGrid = (): void => {
         context.fillStyle = colorBackground;
         context.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (!showGrid) {
+            return;
+        }
 
         const {
             xCellsCount,
@@ -99,7 +117,7 @@ const useGrid = ({
     const renderCell = (cell: Vector): void => {
         const { offsetTop, offsetLeft } = gridSizeParams;
 
-        const cellPadding = 2;
+        const cellPadding = getCellPadding(cellSize);
         const cellRenderingSize = cellSize - cellPadding * 2;
 
         const position: Vector = [

@@ -1,6 +1,6 @@
 import styles from '@/components/Controls/Controls.module.scss';
 
-interface IControlItemProps {
+export interface IControlItemProps {
     key: string;
     text: string;
 }
