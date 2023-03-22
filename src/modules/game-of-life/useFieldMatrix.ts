@@ -30,21 +30,6 @@ const getFieldMatrix = ({ xCellsCount, yCellsCount }: IGridSize): FieldMatrix =>
     return arr;
 };
 
-// todo remove
-export const getFigure = (fieldMatrix: FieldMatrix): Vector[] => {
-    const cells: Vector[] = [];
-
-    fieldMatrix.forEach((column, x) => {
-        column.forEach((isAlive, y) => {
-            if (isAlive) {
-                cells.push([x, y]);
-            }
-        });
-    });
-
-    return cells;
-};
-
 const useFieldMatrix = ({
     gridSize: {
         xCellsCount,

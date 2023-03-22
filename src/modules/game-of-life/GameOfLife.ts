@@ -1,20 +1,21 @@
 import useGrid, { IGrid } from '@/modules/game-of-life/useGrid';
-import useFieldMatrix, {
-    FieldMatrix,
-    IFieldMatrix,
-    getFigure,
-} from '@/modules/game-of-life/useFieldMatrix';
+import useFieldMatrix, { FieldMatrix, IFieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
 import life from '@/modules/game-of-life/figures/life';
-import controlsData, {sizeControls, speedControls} from '@/modules/game-of-life/controls';
+import controlsData, { sizeControls, speedControls } from '@/modules/game-of-life/controls';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
-import getRenderLoop, { IRenderLoop } from '@/utils/useRenderLoop';
+import getRenderLoop, { FramesPerSecond, IRenderLoop } from '@/utils/useRenderLoop';
 import { areSimilarVectors, Vector } from '@/utils/Vector';
 import { Module } from '@/modules/moduleTypes';
 
 import colors from '@/styles/colors.module.scss';
 import getTouchCoordinates from '@/utils/touchCoordinates';
 import isTouchDevice from '@/utils/isTouchDevice';
+
+interface IConfig {
+    cellSize: number,
+    framesPerSecond: FramesPerSecond,
+}
 
 const renderMatrix = (fieldMatrix: FieldMatrix, renderCell: (cell: Vector) => void): void => {
     fieldMatrix.forEach((item, x) => {
@@ -45,8 +46,9 @@ const GameOfLife: Module = (mountElement) => {
     let fieldMatrix: IFieldMatrix = null;
     let renderLoop: IRenderLoop = null;
 
-    const config = {
+    const config: IConfig = {
         cellSize: 20,
+        framesPerSecond: 10,
     };
 
     const render = () => {
@@ -77,7 +79,7 @@ const GameOfLife: Module = (mountElement) => {
 
             grid.renderGrid();
             renderMatrix(fieldMatrix.getMatrix(), grid.renderCell);
-        }, { framesPerSecond: 10 });
+        }, { framesPerSecond: config.framesPerSecond });
 
         grid.renderGrid();
         fieldMatrix.putFigureToCenter(life);
@@ -122,6 +124,7 @@ const GameOfLife: Module = (mountElement) => {
 
     speedControls.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
+            config.framesPerSecond = value;
             renderLoop.setFramesPerSecond(value);
         });
     });
@@ -187,11 +190,6 @@ const GameOfLife: Module = (mountElement) => {
     const beforeUnmount = () => {
         window.removeEventListener('mouseup', handleMouseUp);
         window.removeEventListener('touchend', handleMouseUp);
-    };
-
-    // todo remove
-    (window as any).getFigure = () => {
-        console.log(getFigure(fieldMatrix.getMatrix()));
     };
 
     return { beforeUnmount };
