@@ -13,6 +13,10 @@ interface INavItem {
 
 const navItems: INavItem[] = [
     {
+        text: 'Game of Life',
+        module: gameOfLife,
+    },
+    {
         text: 'Gravity',
         module: gravity,
     },
@@ -20,13 +24,9 @@ const navItems: INavItem[] = [
         text: 'Sierpinski triangle',
         module: sierpinskiTriangle,
     },
-    {
-        text: 'Game of Life',
-        module: gameOfLife,
-    },
 ];
 
-const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 2;
+const DEFAULT_ACTIVE_NAV_ELEMENT_INDEX = 0;
 
 const app = (): void => {
     const { closeMenu } = burgerMenu();
