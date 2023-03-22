@@ -1,16 +1,15 @@
-import useGrid, { IGrid } from '@/modules/game-of-life/useGrid';
-import useFieldMatrix, { FieldMatrix, IFieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
-import life from '@/modules/game-of-life/figures/life';
-import controlsData, { sizeControls, speedControls } from '@/modules/game-of-life/controls';
 import Canvas from '@/components/Canvas';
 import Controls from '@/components/Controls';
-import getRenderLoop, { FramesPerSecond, IRenderLoop } from '@/utils/useRenderLoop';
-import { areSimilarVectors, Vector } from '@/utils/Vector';
+import controlsData, { sizeControls, speedControls } from '@/modules/game-of-life/controls';
+import life from '@/modules/game-of-life/figures/life';
+import useFieldMatrix, { FieldMatrix, IFieldMatrix } from '@/modules/game-of-life/useFieldMatrix';
+import useGrid, { IGrid } from '@/modules/game-of-life/useGrid';
 import { Module } from '@/modules/moduleTypes';
-
 import colors from '@/styles/colors.module.scss';
-import getTouchCoordinates from '@/utils/touchCoordinates';
+import { areSimilarVectors, Vector } from '@/utils/Vector';
 import isTouchDevice from '@/utils/isTouchDevice';
+import getTouchCoordinates from '@/utils/touchCoordinates';
+import getRenderLoop, { FramesPerSecond, IRenderLoop } from '@/utils/useRenderLoop';
 
 interface IConfig {
     cellSize: number,

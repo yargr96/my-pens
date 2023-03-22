@@ -1,4 +1,6 @@
 import Canvas, { DEFAULT_CANVAS_SCALE } from '@/components/Canvas';
+import { Module } from '@/modules/moduleTypes';
+import colors from '@/styles/colors.module.scss';
 import { IParticle, getMovedParticle } from '@/utils/Particle';
 import {
     Vector,
@@ -8,9 +10,6 @@ import {
     multiplyVectorByNumber,
 } from '@/utils/Vector';
 import getRenderLoop from '@/utils/useRenderLoop';
-import { Module } from '@/modules/moduleTypes';
-
-import colors from '@/styles/colors.module.scss';
 
 const config = {
     speed: 1.4,

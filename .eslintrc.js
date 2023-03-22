@@ -23,5 +23,10 @@ module.exports = {
         'no-restricted-exports': 'off',
         // todo fix extensions
         'import/extensions': 'off',
+        'import/order': ['error', {
+            alphabetize: {
+                order: 'asc',
+            },
+        }],
     },
 };

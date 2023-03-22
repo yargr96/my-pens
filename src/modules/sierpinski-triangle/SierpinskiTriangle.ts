@@ -1,5 +1,7 @@
 import Canvas from '@/components/Canvas';
 import Range from '@/components/Range';
+import { Module } from '@/modules/moduleTypes';
+import colors from '@/styles/colors.module.scss';
 import {
     Vector,
     addVectors,
@@ -8,9 +10,6 @@ import {
     CLOCK_ANGLE_OFFSET,
 } from '@/utils/Vector';
 import getRenderLoop from '@/utils/useRenderLoop';
-import { Module } from '@/modules/moduleTypes';
-
-import colors from '@/styles/colors.module.scss';
 
 const CIRCLE_OFFSET = 100;
 

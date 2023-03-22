@@ -1,10 +1,10 @@
 import '@/styles/main.scss';
 
 import burgerMenu from '@/layout/buger-menu';
-import gravity from '@/modules/gravity';
-import sierpinskiTriangle from '@/modules/sierpinski-triangle';
 import gameOfLife from '@/modules/game-of-life';
+import gravity from '@/modules/gravity';
 import { IModule, Module } from '@/modules/moduleTypes';
+import sierpinskiTriangle from '@/modules/sierpinski-triangle';
 
 interface INavItem {
     text: string;
