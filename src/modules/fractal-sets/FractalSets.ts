@@ -2,7 +2,7 @@ import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
-import { addVectors, getVectorLength, Vector } from '@/utils/Vector';
+import { addVectors, Vector } from '@/utils/Vector';
 
 const getComplexNumberSquare = ([x, y]: Vector): Vector => [
     x ** 2 - y ** 2,
@@ -21,9 +21,13 @@ const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => {
     let zLast: Vector = [...z];
 
     for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
-        const zNew = (addVectors(getComplexNumberSquare(zLast), C));
+        const zNew = (
+            addVectors(
+                getComplexNumberSquare(zLast),
+                C,
+            ));
 
-        if (getVectorLength(zNew) > 2) {
+        if (zNew[0] ** 2 + zNew[1] ** 2 > 4) {
             return {
                 value: false,
                 stepsCount: i,
@@ -45,7 +49,7 @@ const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => {
             c,
         );
 
-        if (getVectorLength(zNew) > 2) {
+        if (zNew[0] ** 2 + zNew[1] ** 2 > 4) {
             return {
                 value: false,
                 stepsCount: i,

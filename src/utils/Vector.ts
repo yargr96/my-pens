@@ -29,7 +29,4 @@ export const getVectorAngle = ([x, y]: Vector): number => Math.atan2(y, x);
 
 export const areSimilarVectors = (a: Vector, b: Vector): boolean => a[0] === b[0] && a[1] === b[1];
 
-export const getVectorLength = (vector: Vector): number => Math
-    .sqrt(vector[0] ** 2 + vector[1] ** 2);
-
 export const CLOCK_ANGLE_OFFSET: number = -Math.PI / 2;
