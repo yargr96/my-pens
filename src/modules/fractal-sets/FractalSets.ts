@@ -1,3 +1,4 @@
+import { getGradient, gradientPoints } from './gradient';
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
@@ -62,11 +63,7 @@ const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => {
     return { value: true };
 };
 
-const getColor = (stepsCount: number): string => {
-    const grb = Math.floor((stepsCount / ITERATIONS_COUNT) * 255);
-
-    return `rgb(${grb}, ${grb}, ${grb})`;
-};
+const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
 
 interface ISelectSetButton extends IControlItemProps {
     value: (z: Vector) => IBelongsToFractalSet,
@@ -98,7 +95,7 @@ const FractalSets: Module = (mountElement) => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    context.fillStyle = getColor(0);
+    context.fillStyle = gradient[0];
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     const PADDING = 20;
@@ -129,7 +126,7 @@ const FractalSets: Module = (mountElement) => {
 
                 context.fillStyle = value
                     ? '#000'
-                    : getColor(stepsCount);
+                    : gradient[stepsCount];
                 context.fillRect(x, y, 1, 1);
             }
         }
