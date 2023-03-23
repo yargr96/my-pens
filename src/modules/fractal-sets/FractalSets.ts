@@ -10,18 +10,40 @@ const getComplexNumberSquare = ([x, y]: Vector): Vector => [
 ];
 
 const ITERATIONS_COUNT = 100;
-const c: Vector = [0.14, 0.6];
+const C: Vector = [0.14, 0.6];
 
-interface IBelongsToJuliaSet {
+interface IBelongsToFractalSet {
     value: boolean;
     stepsCount?: number;
 }
 
-const belongsToJuliaSet = (z: Vector): IBelongsToJuliaSet => {
+const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => {
     let zLast: Vector = [...z];
 
     for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
-        const zNew = (addVectors(getComplexNumberSquare(zLast), c));
+        const zNew = (addVectors(getComplexNumberSquare(zLast), C));
+
+        if (getVectorLength(zNew) > 2) {
+            return {
+                value: false,
+                stepsCount: i,
+            };
+        }
+
+        zLast = zNew;
+    }
+
+    return { value: true };
+};
+
+const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => {
+    let zLast: Vector = [0, 0];
+
+    for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
+        const zNew = addVectors(
+            getComplexNumberSquare(zLast),
+            c,
+        );
 
         if (getVectorLength(zNew) > 2) {
             return {
@@ -79,7 +101,7 @@ const FractalSets: Module = (mountElement) => {
     for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
         for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
             const mathCoordinates = getMathCoordinates([x, y]);
-            const { value, stepsCount } = belongsToJuliaSet(mathCoordinates);
+            const { value, stepsCount } = belongsToMandelbrotSet(mathCoordinates);
 
             context.fillStyle = value
                 ? '#000'
