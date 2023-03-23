@@ -9,6 +9,7 @@ interface IUseCoordinatesProps {
 interface IUseCoordinates {
     getMathCoordinates: (canvasCoordinates: Vector) => Vector;
     getCanvasCoordinates: (mathCoordinates: Vector) => Vector;
+    getBoundingCanvasCoordinates: (mathCoordinates: Vector) => Vector;
 }
 
 const useCoordinates = ({
@@ -51,9 +52,32 @@ const useCoordinates = ({
         ];
     };
 
+    const getBoundingCanvasCoordinates = (mathCoordinates: Vector): Vector => {
+        const canvasCoordinates = getCanvasCoordinates(mathCoordinates);
+
+        if (canvasCoordinates[0] < 0) {
+            canvasCoordinates[0] = 0;
+        }
+
+        if (canvasCoordinates[0] > canvasSize[0]) {
+            canvasCoordinates[0] = canvasSize[0];
+        }
+
+        if (canvasCoordinates[1] < 0) {
+            canvasCoordinates[1] = 0;
+        }
+
+        if (canvasCoordinates[1] > canvasSize[1]) {
+            canvasCoordinates[1] = canvasSize[1];
+        }
+
+        return canvasCoordinates;
+    };
+
     return {
         getMathCoordinates,
         getCanvasCoordinates,
+        getBoundingCanvasCoordinates,
     };
 };
 

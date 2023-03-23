@@ -52,15 +52,15 @@ const FractalSets: Module = (mountElement) => {
     const pixelsPerOneMathCoordinate: number = coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE;
     const coordinatesCenter: Vector = [canvas.width / 2, canvas.height / 2];
 
-    const { getMathCoordinates, getCanvasCoordinates } = useCoordinates({
+    const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
         coordinatesCenter,
         pixelsPerOneMathCoordinate,
         canvas,
     });
 
     const renderingBounds = [
-        getCanvasCoordinates([-2, 2]),
-        getCanvasCoordinates([2, -2]),
+        getBoundingCanvasCoordinates([-2, 2]),
+        getBoundingCanvasCoordinates([2, -2]),
     ];
 
     context.fillStyle = colors.light;
