@@ -1,5 +1,5 @@
 import Canvas from '@/components/Canvas';
-import Controls from '@/components/Controls';
+import Controls, { IControlItemProps } from '@/components/Controls';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
 import { addVectors, getVectorLength, Vector } from '@/utils/Vector';
@@ -64,6 +64,23 @@ const getColor = (stepsCount: number): string => {
     return `rgb(${grb}, ${grb}, ${grb})`;
 };
 
+interface ISelectSetButton extends IControlItemProps {
+    value: (z: Vector) => IBelongsToFractalSet,
+}
+
+const setSelectButtons: ISelectSetButton[] = [
+    {
+        text: 'Mandelbrot set',
+        key: 'mandelbrot',
+        value: belongsToMandelbrotSet,
+    },
+    {
+        text: 'Julia set',
+        key: 'julia',
+        value: belongsToJuliaSet,
+    },
+];
+
 const FractalSets: Module = (mountElement) => {
     const {
         element: canvas,
@@ -87,7 +104,7 @@ const FractalSets: Module = (mountElement) => {
     const pixelsPerOneMathCoordinate: number = coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE;
     const coordinatesCenter: Vector = [canvas.width / 2, canvas.height / 2];
 
-    let belongsTo = belongsToJuliaSet;
+    let belongsTo = belongsToMandelbrotSet;
 
     const render = (): void => {
         const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
@@ -114,27 +131,15 @@ const FractalSets: Module = (mountElement) => {
         }
     };
 
-    const controls = Controls([[
-        {
-            text: 'Julia set',
-            key: 'julia',
-        },
-        {
-            text: 'Mandelbrot set',
-            key: 'mandelbrot',
-        },
-    ]]);
+    const controls = Controls([setSelectButtons]);
 
     controls.append(mountElement);
 
-    controls.elements.julia.addEventListener('click', () => {
-        belongsTo = belongsToJuliaSet;
-        render();
-    });
-
-    controls.elements.mandelbrot.addEventListener('click', () => {
-        belongsTo = belongsToMandelbrotSet;
-        render();
+    setSelectButtons.forEach(({ key, value }) => {
+        controls.elements[key].addEventListener('click', () => {
+            belongsTo = value;
+            render();
+        });
     });
 
     render();
