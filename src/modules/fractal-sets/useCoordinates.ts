@@ -43,7 +43,12 @@ const useCoordinates = ({
             pixelsPerOneMathCoordinate,
         );
 
-        return getUnshiftedCoordinates(shiftedCoordinates);
+        const unshiftedCoordinates = getUnshiftedCoordinates(shiftedCoordinates);
+
+        return [
+            Math.round(unshiftedCoordinates[0]),
+            Math.round(unshiftedCoordinates[1]),
+        ];
     };
 
     return {

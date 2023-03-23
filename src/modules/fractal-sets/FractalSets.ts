@@ -2,13 +2,32 @@ import Canvas from '@/components/Canvas';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
 import colors from '@/styles/colors.module.scss';
-import { addVectors, Vector } from '@/utils/Vector';
+import { addVectors, getVectorLength, Vector } from '@/utils/Vector';
 
 // z(n) = z(n-1)**2 + c
 const getComplexNumberSquare = ([x, y]: Vector): Vector => [
     x ** 2 - y ** 2,
     2 * x * y,
 ];
+
+const ITERATIONS_COUNT = 100;
+const c: Vector = [0.14, 0.6];
+
+const belongsToJuliaSet = (z: Vector) => {
+    let zLast: Vector = [...z];
+
+    for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
+        const zNew = (addVectors(getComplexNumberSquare(zLast), c));
+
+        if (getVectorLength(zNew) > 2) {
+            return false;
+        }
+
+        zLast = zNew;
+    }
+
+    return true;
+};
 
 const FractalSets: Module = (mountElement) => {
     const {
@@ -39,14 +58,25 @@ const FractalSets: Module = (mountElement) => {
         canvas,
     });
 
+    const renderingBounds = [
+        getCanvasCoordinates([-2, 2]),
+        getCanvasCoordinates([2, -2]),
+    ];
+
     context.fillStyle = colors.light;
-    context.fillRect(...addVectors(coordinatesCenter, [-2, -2]), 4, 4);
+
+    for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
+        for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
+            const mathCoordinates = getMathCoordinates([x, y]);
+            if (belongsToJuliaSet(mathCoordinates)) {
+                context.fillRect(x, y, 1, 1);
+            }
+        }
+    }
 
     canvas.addEventListener('click', ({ offsetX, offsetY }) => {
         const mathCoordinates = getMathCoordinates([offsetX, offsetY]);
-        console.log(mathCoordinates);
-        console.log(getCanvasCoordinates(mathCoordinates));
-        console.log([offsetX, offsetY]);
+        console.log(belongsToJuliaSet(mathCoordinates));
     });
 
     return {};
