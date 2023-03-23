@@ -1,7 +1,6 @@
 import Canvas from '@/components/Canvas';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
-import colors from '@/styles/colors.module.scss';
 import { addVectors, getVectorLength, Vector } from '@/utils/Vector';
 
 // z(n) = z(n-1)**2 + c
