@@ -1,9 +1,9 @@
 import Canvas from '@/components/Canvas';
+import Controls from '@/components/Controls';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
 import { addVectors, getVectorLength, Vector } from '@/utils/Vector';
 
-// z(n) = z(n-1)**2 + c
 const getComplexNumberSquare = ([x, y]: Vector): Vector => [
     x ** 2 - y ** 2,
     2 * x * y,
@@ -87,28 +87,57 @@ const FractalSets: Module = (mountElement) => {
     const pixelsPerOneMathCoordinate: number = coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE;
     const coordinatesCenter: Vector = [canvas.width / 2, canvas.height / 2];
 
-    const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
-        coordinatesCenter,
-        pixelsPerOneMathCoordinate,
-        canvas,
+    let belongsTo = belongsToJuliaSet;
+
+    const render = (): void => {
+        const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
+            coordinatesCenter,
+            pixelsPerOneMathCoordinate,
+            canvas,
+        });
+
+        const renderingBounds = [
+            getBoundingCanvasCoordinates([-2, 2]),
+            getBoundingCanvasCoordinates([2, -2]),
+        ];
+
+        for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
+            for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
+                const mathCoordinates = getMathCoordinates([x, y]);
+                const { value, stepsCount } = belongsTo(mathCoordinates);
+
+                context.fillStyle = value
+                    ? '#000'
+                    : getColor(stepsCount);
+                context.fillRect(x, y, 1, 1);
+            }
+        }
+    };
+
+    const controls = Controls([[
+        {
+            text: 'Julia set',
+            key: 'julia',
+        },
+        {
+            text: 'Mandelbrot set',
+            key: 'mandelbrot',
+        },
+    ]]);
+
+    controls.append(mountElement);
+
+    controls.elements.julia.addEventListener('click', () => {
+        belongsTo = belongsToJuliaSet;
+        render();
     });
 
-    const renderingBounds = [
-        getBoundingCanvasCoordinates([-2, 2]),
-        getBoundingCanvasCoordinates([2, -2]),
-    ];
+    controls.elements.mandelbrot.addEventListener('click', () => {
+        belongsTo = belongsToMandelbrotSet;
+        render();
+    });
 
-    for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
-        for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
-            const mathCoordinates = getMathCoordinates([x, y]);
-            const { value, stepsCount } = belongsToMandelbrotSet(mathCoordinates);
-
-            context.fillStyle = value
-                ? '#000'
-                : getColor(stepsCount);
-            context.fillRect(x, y, 1, 1);
-        }
-    }
+    render();
 
     return {};
 };
