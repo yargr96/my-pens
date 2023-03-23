@@ -56,7 +56,7 @@ const FractalSets: Module = (mountElement) => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    context.fillStyle = '#000';
+    context.fillStyle = getColor(0);
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     const PADDING = 20;
