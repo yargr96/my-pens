@@ -13,20 +13,34 @@ const getComplexNumberSquare = ([x, y]: Vector): Vector => [
 const ITERATIONS_COUNT = 100;
 const c: Vector = [0.14, 0.6];
 
-const belongsToJuliaSet = (z: Vector) => {
+interface IBelongsToJuliaSet {
+    value: boolean;
+    stepsCount?: number;
+}
+
+const belongsToJuliaSet = (z: Vector): IBelongsToJuliaSet => {
     let zLast: Vector = [...z];
 
     for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
         const zNew = (addVectors(getComplexNumberSquare(zLast), c));
 
         if (getVectorLength(zNew) > 2) {
-            return false;
+            return {
+                value: false,
+                stepsCount: i,
+            };
         }
 
         zLast = zNew;
     }
 
-    return true;
+    return { value: true };
+};
+
+const getColor = (stepsCount: number): string => {
+    const grb = Math.floor((stepsCount / ITERATIONS_COUNT) * 255);
+
+    return `rgb(${grb}, ${grb}, ${grb})`;
 };
 
 const FractalSets: Module = (mountElement) => {
@@ -42,7 +56,7 @@ const FractalSets: Module = (mountElement) => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    context.fillStyle = colors.dark;
+    context.fillStyle = '#000';
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     const PADDING = 20;
@@ -63,21 +77,17 @@ const FractalSets: Module = (mountElement) => {
         getBoundingCanvasCoordinates([2, -2]),
     ];
 
-    context.fillStyle = colors.light;
-
     for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
         for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
             const mathCoordinates = getMathCoordinates([x, y]);
-            if (belongsToJuliaSet(mathCoordinates)) {
-                context.fillRect(x, y, 1, 1);
-            }
+            const { value, stepsCount } = belongsToJuliaSet(mathCoordinates);
+
+            context.fillStyle = value
+                ? '#000'
+                : getColor(stepsCount);
+            context.fillRect(x, y, 1, 1);
         }
     }
-
-    canvas.addEventListener('click', ({ offsetX, offsetY }) => {
-        const mathCoordinates = getMathCoordinates([offsetX, offsetY]);
-        console.log(belongsToJuliaSet(mathCoordinates));
-    });
 
     return {};
 };
