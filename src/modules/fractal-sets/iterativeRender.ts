@@ -12,7 +12,7 @@ interface IterativeRender {
 const iterativeRender = ({
     start,
     end,
-    step = 8,
+    step = 16,
     callback,
     isLowQuality = false,
 }: IterativeRender) => {

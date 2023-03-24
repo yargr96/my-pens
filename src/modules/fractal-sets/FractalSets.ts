@@ -1,6 +1,7 @@
 import { getGradient, gradientPoints } from './gradient';
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
+import styles from '@/modules/fractal-sets/FractalSets.module.scss';
 import {
     belongsToSet,
     ITERATIONS_COUNT,
@@ -61,6 +62,8 @@ const FractalSets: Module = (mountElement) => {
         append,
         getContext,
     } = Canvas();
+
+    canvas.classList.add(styles.canvas);
 
     setSize(mountElement, 1);
     append(mountElement);
