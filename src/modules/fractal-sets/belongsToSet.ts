@@ -11,9 +11,8 @@ const getComplexNumberSquare = ([x, y]: Vector): Vector => [
 ];
 
 export const ITERATIONS_COUNT = 100;
-const C: Vector = [0.14, 0.6];
 
-const belongsToSet = (z0: Vector, c: Vector): IBelongsToFractalSet => {
+export const belongsToSet = (z0: Vector, c: Vector): IBelongsToFractalSet => {
     let zLast: Vector = [...z0];
 
     for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
@@ -35,7 +34,3 @@ const belongsToSet = (z0: Vector, c: Vector): IBelongsToFractalSet => {
 
     return { value: true };
 };
-
-export const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => belongsToSet(z, C);
-
-export const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => belongsToSet([0, 0], c);

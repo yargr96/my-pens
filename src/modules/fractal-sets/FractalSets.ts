@@ -2,8 +2,7 @@ import { getGradient, gradientPoints } from './gradient';
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import {
-    belongsToMandelbrotSet,
-    belongsToJuliaSet,
+    belongsToSet,
     ITERATIONS_COUNT,
     IBelongsToFractalSet,
 } from '@/modules/fractal-sets/belongsToSet';
@@ -11,11 +10,16 @@ import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
 import { Vector } from '@/utils/Vector';
 
-const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
-
 interface ISelectSetButton extends IControlItemProps {
     value: (z: Vector) => IBelongsToFractalSet,
 }
+
+const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
+
+const C: Vector = [0.14, 0.6];
+
+const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => belongsToSet(z, C);
+const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => belongsToSet([0, 0], c);
 
 const setSelectButtons: ISelectSetButton[] = [
     {
