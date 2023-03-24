@@ -10,7 +10,12 @@ import {
 import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
-import { addVectors, subtractVector, Vector } from '@/utils/Vector';
+import {
+    addVectors,
+    areSimilarVectors,
+    subtractVector,
+    Vector,
+} from '@/utils/Vector';
 import isTouchDevice from '@/utils/isTouchDevice';
 import getTouchCoordinates from '@/utils/touchCoordinates';
 
@@ -139,6 +144,7 @@ const FractalSets: Module = (mountElement) => {
 
     let isMouseDown = false;
     let lastMouseCoordinates: Vector;
+    let coordinatesChanged = false;
 
     const handleMouseDown = (e: MouseEvent & TouchEvent) => {
         isMouseDown = true;
@@ -146,6 +152,7 @@ const FractalSets: Module = (mountElement) => {
         const { offsetX, offsetY } = getTouchCoordinates(e);
         lastMouseCoordinates = [offsetX, offsetY];
     };
+
     const handleMouseMove = (e: MouseEvent & TouchEvent) => {
         if (!isMouseDown) {
             return;
@@ -154,14 +161,27 @@ const FractalSets: Module = (mountElement) => {
         const { offsetX, offsetY } = getTouchCoordinates(e);
 
         const deltaCoordinates = subtractVector([offsetX, offsetY], lastMouseCoordinates);
+        if (areSimilarVectors(deltaCoordinates, [0, 0])) {
+            return;
+        }
+
         coordinatesCenter = addVectors(coordinatesCenter, deltaCoordinates);
         lastMouseCoordinates = [offsetX, offsetY];
+        coordinatesChanged = true;
 
         render({ isLowQuality: true });
     };
     const handleMouseUp = () => {
+        if (!isMouseDown) {
+            return;
+        }
+
         isMouseDown = false;
-        render();
+
+        if (coordinatesChanged) {
+            render();
+            coordinatesChanged = false;
+        }
     };
 
     if (isTouchDevice()) {
