@@ -1,67 +1,15 @@
 import { getGradient, gradientPoints } from './gradient';
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
+import {
+    belongsToMandelbrotSet,
+    belongsToJuliaSet,
+    ITERATIONS_COUNT,
+    IBelongsToFractalSet,
+} from '@/modules/fractal-sets/belongsToSet';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
-import { addVectors, Vector } from '@/utils/Vector';
-
-const getComplexNumberSquare = ([x, y]: Vector): Vector => [
-    x ** 2 - y ** 2,
-    2 * x * y,
-];
-
-const ITERATIONS_COUNT = 100;
-const C: Vector = [0.14, 0.6];
-
-interface IBelongsToFractalSet {
-    value: boolean;
-    stepsCount?: number;
-}
-
-const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => {
-    let zLast: Vector = [...z];
-
-    for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
-        const zNew = (
-            addVectors(
-                getComplexNumberSquare(zLast),
-                C,
-            ));
-
-        if (zNew[0] ** 2 + zNew[1] ** 2 > 4) {
-            return {
-                value: false,
-                stepsCount: i,
-            };
-        }
-
-        zLast = zNew;
-    }
-
-    return { value: true };
-};
-
-const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => {
-    let zLast: Vector = [0, 0];
-
-    for (let i = 0; i < ITERATIONS_COUNT; i += 1) {
-        const zNew = addVectors(
-            getComplexNumberSquare(zLast),
-            c,
-        );
-
-        if (zNew[0] ** 2 + zNew[1] ** 2 > 4) {
-            return {
-                value: false,
-                stepsCount: i,
-            };
-        }
-
-        zLast = zNew;
-    }
-
-    return { value: true };
-};
+import { Vector } from '@/utils/Vector';
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
 
