@@ -15,6 +15,10 @@ interface ISelectSetButton extends IControlItemProps {
     value: (z: Vector) => IBelongsToFractalSet,
 }
 
+interface IZoomButton extends IControlItemProps {
+    value: 2 | 0.5,
+}
+
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
 
 const C: Vector = [0.14, 0.6];
@@ -35,6 +39,19 @@ const setSelectButtons: ISelectSetButton[] = [
     },
 ];
 
+const zoomButtons: IZoomButton[] = [
+    {
+        text: '+',
+        key: 'plus',
+        value: 2,
+    },
+    {
+        text: '-',
+        key: 'minus',
+        value: 0.5,
+    },
+];
+
 const FractalSets: Module = (mountElement) => {
     const {
         element: canvas,
@@ -48,17 +65,17 @@ const FractalSets: Module = (mountElement) => {
 
     const context: CanvasRenderingContext2D = getContext();
 
-    context.fillStyle = gradient[0];
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
     const PADDING = 20;
 
     const coordinatesSquareSize = Math.min(canvas.width, canvas.height) - PADDING * 2;
     const COORDINATE_SQUARE_MATH_SIZE = 4;
-    const pixelsPerOneMathCoordinate: number = coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE;
+    const pixelsPerOneMathCoordinateDefault: number = (
+        coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE
+    );
     const coordinatesCenter: Vector = [canvas.width / 2, canvas.height / 2];
 
     let belongsTo = belongsToMandelbrotSet;
+    let pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
 
     const render = (): void => {
         const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
@@ -71,6 +88,9 @@ const FractalSets: Module = (mountElement) => {
             getBoundingCanvasCoordinates([-2, 2]),
             getBoundingCanvasCoordinates([2, -2]),
         ];
+
+        context.fillStyle = gradient[0];
+        context.fillRect(0, 0, canvas.width, canvas.height);
 
         iterativeRender({
             start: renderingBounds[0],
@@ -87,13 +107,24 @@ const FractalSets: Module = (mountElement) => {
         });
     };
 
-    const controls = Controls([setSelectButtons]);
+    const controls = Controls([
+        setSelectButtons,
+        zoomButtons,
+    ]);
 
     controls.append(mountElement);
 
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             belongsTo = value;
+            pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
+            render();
+        });
+    });
+
+    zoomButtons.forEach(({ key, value }) => {
+        controls.elements[key].addEventListener('click', () => {
+            pixelsPerOneMathCoordinate *= value;
             render();
         });
     });
