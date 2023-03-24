@@ -6,6 +6,7 @@ interface IterativeRender {
     end: Vector;
     step?: number;
     callback: (coordinates: Vector, step: number) => void;
+    isLowQuality?: boolean;
 }
 
 const iterativeRender = ({
@@ -13,6 +14,7 @@ const iterativeRender = ({
     end,
     step = 8,
     callback,
+    isLowQuality = false,
 }: IterativeRender) => {
     let currentStep = step;
     let isRecursiveCall = false;
@@ -31,7 +33,7 @@ const iterativeRender = ({
             }
         }
 
-        if (currentStep <= 1) {
+        if (currentStep <= 1 || isLowQuality) {
             renderLoop.stop();
         }
 

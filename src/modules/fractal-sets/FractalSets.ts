@@ -9,7 +9,9 @@ import {
 import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
-import { Vector } from '@/utils/Vector';
+import { addVectors, subtractVector, Vector } from '@/utils/Vector';
+import isTouchDevice from '@/utils/isTouchDevice';
+import getTouchCoordinates from '@/utils/touchCoordinates';
 
 interface ISelectSetButton extends IControlItemProps {
     value: (z: Vector) => IBelongsToFractalSet,
@@ -72,12 +74,13 @@ const FractalSets: Module = (mountElement) => {
     const pixelsPerOneMathCoordinateDefault: number = (
         coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE
     );
-    const coordinatesCenter: Vector = [canvas.width / 2, canvas.height / 2];
+    const coordinatesCenterDefault: Vector = [canvas.width / 2, canvas.height / 2];
 
     let belongsTo = belongsToMandelbrotSet;
     let pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
+    let coordinatesCenter = coordinatesCenterDefault;
 
-    const render = (): void => {
+    const render = ({ isLowQuality = false } = {}): void => {
         const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
             coordinatesCenter,
             pixelsPerOneMathCoordinate,
@@ -95,6 +98,7 @@ const FractalSets: Module = (mountElement) => {
         iterativeRender({
             start: renderingBounds[0],
             end: renderingBounds[1],
+            isLowQuality,
             callback: ([x, y], step) => {
                 const mathCoordinates = getMathCoordinates([x, y]);
                 const { value, stepsCount } = belongsTo(mathCoordinates);
@@ -118,6 +122,7 @@ const FractalSets: Module = (mountElement) => {
         controls.elements[key].addEventListener('click', () => {
             belongsTo = value;
             pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
+            coordinatesCenter = coordinatesCenterDefault;
             render();
         });
     });
@@ -129,9 +134,51 @@ const FractalSets: Module = (mountElement) => {
         });
     });
 
+    let isMouseDown = false;
+    let lastMouseCoordinates: Vector;
+
+    const handleMouseDown = (e: MouseEvent & TouchEvent) => {
+        isMouseDown = true;
+
+        const { offsetX, offsetY } = getTouchCoordinates(e);
+        lastMouseCoordinates = [offsetX, offsetY];
+    };
+    const handleMouseMove = (e: MouseEvent & TouchEvent) => {
+        if (!isMouseDown) {
+            return;
+        }
+
+        const { offsetX, offsetY } = getTouchCoordinates(e);
+
+        const deltaCoordinates = subtractVector([offsetX, offsetY], lastMouseCoordinates);
+        coordinatesCenter = addVectors(coordinatesCenter, deltaCoordinates);
+        lastMouseCoordinates = [offsetX, offsetY];
+
+        render({ isLowQuality: true });
+    };
+    const handleMouseUp = () => {
+        isMouseDown = false;
+        render();
+    };
+
+    if (isTouchDevice()) {
+        canvas.addEventListener('touchstart', handleMouseDown);
+        canvas.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('touchend', handleMouseUp);
+    } else {
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+    }
+
     render();
 
-    return {};
+    return {
+        beforeUnmount: () => {
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchend', handleMouseUp);
+        },
+    };
 };
 
 export default FractalSets;
