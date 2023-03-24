@@ -6,6 +6,7 @@ import {
     ITERATIONS_COUNT,
     IBelongsToFractalSet,
 } from '@/modules/fractal-sets/belongsToSet';
+import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates from '@/modules/fractal-sets/useCoordinates';
 import { Module } from '@/modules/moduleTypes';
 import { Vector } from '@/utils/Vector';
@@ -71,17 +72,19 @@ const FractalSets: Module = (mountElement) => {
             getBoundingCanvasCoordinates([2, -2]),
         ];
 
-        for (let x = renderingBounds[0][0]; x <= renderingBounds[1][0]; x += 1) {
-            for (let y = renderingBounds[0][1]; y <= renderingBounds[1][1]; y += 1) {
+        iterativeRender({
+            start: renderingBounds[0],
+            end: renderingBounds[1],
+            callback: ([x, y], step) => {
                 const mathCoordinates = getMathCoordinates([x, y]);
                 const { value, stepsCount } = belongsTo(mathCoordinates);
 
                 context.fillStyle = value
                     ? '#000'
                     : gradient[stepsCount];
-                context.fillRect(x, y, 1, 1);
-            }
-        }
+                context.fillRect(x, y, step, step);
+            },
+        });
     };
 
     const controls = Controls([setSelectButtons]);
