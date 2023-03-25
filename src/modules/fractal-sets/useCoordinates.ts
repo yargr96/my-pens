@@ -32,10 +32,7 @@ const useCoordinates = ({
     const getMathCoordinates = (canvasCoordinates: Vector): Vector => {
         const shiftedCoordinates = getShiftedCoordinates(canvasCoordinates);
 
-        return [
-            shiftedCoordinates[0] / pixelsPerOneMathCoordinate,
-            shiftedCoordinates[1] / pixelsPerOneMathCoordinate,
-        ];
+        return multiplyVectorByNumber(shiftedCoordinates, 1 / pixelsPerOneMathCoordinate);
     };
 
     const getCanvasCoordinates = (mathCoordinates: Vector): Vector => {
