@@ -107,7 +107,7 @@ const FractalSets: Module = (mountElement) => {
             end: renderingBounds[1],
             isLowQuality,
             callback: ([x, y], step) => {
-                const mathCoordinates = coordinates.getMathCoordinates([x, y]);
+                const mathCoordinates = coordinates.toMathCoordinates([x, y]);
                 const { value, stepsCount } = belongsTo(mathCoordinates);
 
                 context.fillStyle = value
@@ -128,15 +128,15 @@ const FractalSets: Module = (mountElement) => {
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             belongsTo = value;
-            coordinates.updatePixelsPerOneMathCoordinate(pixelsPerOneMathCoordinateDefault);
-            coordinates.updateCoordinatesCenter(coordinatesCenterDefault);
+            coordinates.setPixelsPerOneMathCoordinate(pixelsPerOneMathCoordinateDefault);
+            coordinates.setCoordinatesCenter(coordinatesCenterDefault);
             render();
         });
     });
 
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            coordinates.updatePixelsPerOneMathCoordinate(
+            coordinates.setPixelsPerOneMathCoordinate(
                 coordinates.getPixelsPerOneMathCoordinate() * value,
             );
             render();
@@ -166,7 +166,7 @@ const FractalSets: Module = (mountElement) => {
             return;
         }
 
-        coordinates.updateCoordinatesCenter(
+        coordinates.setCoordinatesCenter(
             addVectors(coordinates.getCoordinatesCenter(), deltaCoordinates),
         );
         lastMouseCoordinates = [offsetX, offsetY];

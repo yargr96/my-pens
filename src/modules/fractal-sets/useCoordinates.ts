@@ -7,11 +7,11 @@ interface IUseCoordinatesProps {
 }
 
 interface IUseCoordinates {
-    getMathCoordinates: (canvasCoordinates: Vector) => Vector;
-    getCanvasCoordinates: (mathCoordinates: Vector) => Vector;
+    toMathCoordinates: (canvasCoordinates: Vector) => Vector;
+    toCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     getBoundingCanvasCoordinates: (mathCoordinates: Vector) => Vector;
-    updateCoordinatesCenter: (value: Vector) => void;
-    updatePixelsPerOneMathCoordinate: (value: number) => void;
+    setCoordinatesCenter: (value: Vector) => void;
+    setPixelsPerOneMathCoordinate: (value: number) => void;
     getCoordinatesCenter: () => Vector;
     getPixelsPerOneMathCoordinate: () => number;
 }
@@ -38,7 +38,7 @@ const useCoordinates = ({
         canvasSize[1] - shiftedCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
     ];
 
-    const getMathCoordinates = (canvasCoordinates: Vector): Vector => {
+    const toMathCoordinates = (canvasCoordinates: Vector): Vector => {
         const shiftedCoordinates = getShiftedCoordinates(canvasCoordinates);
 
         return multiplyVectorByNumber(
@@ -47,7 +47,7 @@ const useCoordinates = ({
         );
     };
 
-    const getCanvasCoordinates = (mathCoordinates: Vector): Vector => {
+    const toCanvasCoordinates = (mathCoordinates: Vector): Vector => {
         const shiftedCoordinates = multiplyVectorByNumber(
             mathCoordinates,
             properties.pixelsPerOneMathCoordinate,
@@ -62,7 +62,7 @@ const useCoordinates = ({
     };
 
     const getBoundingCanvasCoordinates = (mathCoordinates: Vector): Vector => {
-        const canvasCoordinates = getCanvasCoordinates(mathCoordinates);
+        const canvasCoordinates = toCanvasCoordinates(mathCoordinates);
 
         if (canvasCoordinates[0] < 0) {
             canvasCoordinates[0] = 0;
@@ -83,11 +83,11 @@ const useCoordinates = ({
         return canvasCoordinates;
     };
 
-    const updateCoordinatesCenter = (value: Vector) => {
+    const setCoordinatesCenter = (value: Vector) => {
         properties.coordinatesCenter = value;
     };
 
-    const updatePixelsPerOneMathCoordinate = (value: number) => {
+    const setPixelsPerOneMathCoordinate = (value: number) => {
         properties.pixelsPerOneMathCoordinate = value;
     };
 
@@ -95,11 +95,11 @@ const useCoordinates = ({
     const getPixelsPerOneMathCoordinate = (): number => properties.pixelsPerOneMathCoordinate;
 
     return {
-        getMathCoordinates,
-        getCanvasCoordinates,
+        toMathCoordinates,
+        toCanvasCoordinates,
         getBoundingCanvasCoordinates,
-        updateCoordinatesCenter,
-        updatePixelsPerOneMathCoordinate,
+        setCoordinatesCenter,
+        setPixelsPerOneMathCoordinate,
         getCoordinatesCenter,
         getPixelsPerOneMathCoordinate,
     };
