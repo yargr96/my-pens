@@ -82,7 +82,8 @@ const FractalSets: Module = (mountElement) => {
     const pixelsPerOneMathCoordinateDefault: number = (
         coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE
     );
-    const coordinatesCenterDefault: Vector = [canvas.width / 2, canvas.height / 2];
+    const canvasCenterCoordinates: Vector = [canvas.width / 2, canvas.height / 2];
+    const coordinatesCenterDefault: Vector = canvasCenterCoordinates;
 
     let belongsTo = belongsToMandelbrotSet;
 
