@@ -85,19 +85,17 @@ const FractalSets: Module = (mountElement) => {
     const coordinatesCenterDefault: Vector = [canvas.width / 2, canvas.height / 2];
 
     let belongsTo = belongsToMandelbrotSet;
-    let pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
-    let coordinatesCenter = coordinatesCenterDefault;
+
+    const coordinates = useCoordinates({
+        coordinatesCenter: coordinatesCenterDefault,
+        pixelsPerOneMathCoordinate: pixelsPerOneMathCoordinateDefault,
+        canvas,
+    });
 
     const render = ({ isLowQuality = false } = {}): void => {
-        const { getMathCoordinates, getBoundingCanvasCoordinates } = useCoordinates({
-            coordinatesCenter,
-            pixelsPerOneMathCoordinate,
-            canvas,
-        });
-
         const renderingBounds = [
-            getBoundingCanvasCoordinates([-2, 2]),
-            getBoundingCanvasCoordinates([2, -2]),
+            coordinates.getBoundingCanvasCoordinates([-2, 2]),
+            coordinates.getBoundingCanvasCoordinates([2, -2]),
         ];
 
         context.fillStyle = gradient[0];
@@ -108,7 +106,7 @@ const FractalSets: Module = (mountElement) => {
             end: renderingBounds[1],
             isLowQuality,
             callback: ([x, y], step) => {
-                const mathCoordinates = getMathCoordinates([x, y]);
+                const mathCoordinates = coordinates.getMathCoordinates([x, y]);
                 const { value, stepsCount } = belongsTo(mathCoordinates);
 
                 context.fillStyle = value
@@ -129,15 +127,17 @@ const FractalSets: Module = (mountElement) => {
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             belongsTo = value;
-            pixelsPerOneMathCoordinate = pixelsPerOneMathCoordinateDefault;
-            coordinatesCenter = coordinatesCenterDefault;
+            coordinates.updatePixelsPerOneMathCoordinate(pixelsPerOneMathCoordinateDefault);
+            coordinates.updateCoordinatesCenter(coordinatesCenterDefault);
             render();
         });
     });
 
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            pixelsPerOneMathCoordinate *= value;
+            coordinates.updatePixelsPerOneMathCoordinate(
+                coordinates.getPixelsPerOneMathCoordinate() * value,
+            );
             render();
         });
     });
@@ -165,7 +165,9 @@ const FractalSets: Module = (mountElement) => {
             return;
         }
 
-        coordinatesCenter = addVectors(coordinatesCenter, deltaCoordinates);
+        coordinates.updateCoordinatesCenter(
+            addVectors(coordinates.getCoordinatesCenter(), deltaCoordinates),
+        );
         lastMouseCoordinates = [offsetX, offsetY];
         coordinatesChanged = true;
 

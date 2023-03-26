@@ -10,6 +10,10 @@ interface IUseCoordinates {
     getMathCoordinates: (canvasCoordinates: Vector) => Vector;
     getCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     getBoundingCanvasCoordinates: (mathCoordinates: Vector) => Vector;
+    updateCoordinatesCenter: (value: Vector) => void;
+    updatePixelsPerOneMathCoordinate: (value: number) => void;
+    getCoordinatesCenter: () => Vector;
+    getPixelsPerOneMathCoordinate: () => number;
 }
 
 const useCoordinates = ({
@@ -17,28 +21,36 @@ const useCoordinates = ({
     pixelsPerOneMathCoordinate,
     canvas,
 }: IUseCoordinatesProps): IUseCoordinates => {
+    const properties = {
+        coordinatesCenter,
+        pixelsPerOneMathCoordinate,
+    };
+
     const canvasSize: Vector = [canvas.width, canvas.height];
 
     const getShiftedCoordinates = (canvasCoordinates: Vector): Vector => [
-        canvasCoordinates[0] - coordinatesCenter[0],
-        canvasSize[1] - canvasCoordinates[1] - (canvasSize[1] - coordinatesCenter[1]),
+        canvasCoordinates[0] - properties.coordinatesCenter[0],
+        canvasSize[1] - canvasCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
     ];
 
     const getUnshiftedCoordinates = (shiftedCoordinates: Vector): Vector => [
-        shiftedCoordinates[0] + coordinatesCenter[0],
-        canvasSize[1] - shiftedCoordinates[1] - (canvasSize[1] - coordinatesCenter[1]),
+        shiftedCoordinates[0] + properties.coordinatesCenter[0],
+        canvasSize[1] - shiftedCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
     ];
 
     const getMathCoordinates = (canvasCoordinates: Vector): Vector => {
         const shiftedCoordinates = getShiftedCoordinates(canvasCoordinates);
 
-        return multiplyVectorByNumber(shiftedCoordinates, 1 / pixelsPerOneMathCoordinate);
+        return multiplyVectorByNumber(
+            shiftedCoordinates,
+            1 / properties.pixelsPerOneMathCoordinate,
+        );
     };
 
     const getCanvasCoordinates = (mathCoordinates: Vector): Vector => {
         const shiftedCoordinates = multiplyVectorByNumber(
             mathCoordinates,
-            pixelsPerOneMathCoordinate,
+            properties.pixelsPerOneMathCoordinate,
         );
 
         const unshiftedCoordinates = getUnshiftedCoordinates(shiftedCoordinates);
@@ -71,10 +83,25 @@ const useCoordinates = ({
         return canvasCoordinates;
     };
 
+    const updateCoordinatesCenter = (value: Vector) => {
+        properties.coordinatesCenter = value;
+    };
+
+    const updatePixelsPerOneMathCoordinate = (value: number) => {
+        properties.pixelsPerOneMathCoordinate = value;
+    };
+
+    const getCoordinatesCenter = (): Vector => properties.coordinatesCenter;
+    const getPixelsPerOneMathCoordinate = (): number => properties.pixelsPerOneMathCoordinate;
+
     return {
         getMathCoordinates,
         getCanvasCoordinates,
         getBoundingCanvasCoordinates,
+        updateCoordinatesCenter,
+        updatePixelsPerOneMathCoordinate,
+        getCoordinatesCenter,
+        getPixelsPerOneMathCoordinate,
     };
 };
 
