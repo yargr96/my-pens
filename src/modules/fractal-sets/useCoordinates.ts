@@ -28,18 +28,18 @@ const useCoordinates = ({
 
     const canvasSize: Vector = [canvas.width, canvas.height];
 
-    const getShiftedCoordinates = (canvasCoordinates: Vector): Vector => [
+    const toShiftedCoordinates = (canvasCoordinates: Vector): Vector => [
         canvasCoordinates[0] - properties.coordinatesCenter[0],
         canvasSize[1] - canvasCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
     ];
 
-    const getUnshiftedCoordinates = (shiftedCoordinates: Vector): Vector => [
+    const toUnshiftedCoordinates = (shiftedCoordinates: Vector): Vector => [
         shiftedCoordinates[0] + properties.coordinatesCenter[0],
         canvasSize[1] - shiftedCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
     ];
 
     const toMathCoordinates = (canvasCoordinates: Vector): Vector => {
-        const shiftedCoordinates = getShiftedCoordinates(canvasCoordinates);
+        const shiftedCoordinates = toShiftedCoordinates(canvasCoordinates);
 
         return multiplyVectorByNumber(
             shiftedCoordinates,
@@ -53,7 +53,7 @@ const useCoordinates = ({
             properties.pixelsPerOneMathCoordinate,
         );
 
-        const unshiftedCoordinates = getUnshiftedCoordinates(shiftedCoordinates);
+        const unshiftedCoordinates = toUnshiftedCoordinates(shiftedCoordinates);
 
         return [
             Math.round(unshiftedCoordinates[0]),
