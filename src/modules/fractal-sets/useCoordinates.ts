@@ -1,4 +1,4 @@
-import { multiplyVectorByNumber, Vector } from '@/utils/Vector';
+import { multiplyVectorByNumber, subtractVector, Vector } from '@/utils/Vector';
 
 interface IUseCoordinatesProps {
     coordinatesCenter: Vector;
@@ -14,6 +14,7 @@ interface IUseCoordinates {
     setPixelsPerOneMathCoordinate: (value: number) => void;
     getCoordinatesCenter: () => Vector;
     getPixelsPerOneMathCoordinate: () => number;
+    setCenterToMathCoordinates: (mathCoordinates: Vector) => void;
 }
 
 const useCoordinates = ({
@@ -27,6 +28,7 @@ const useCoordinates = ({
     };
 
     const canvasSize: Vector = [canvas.width, canvas.height];
+    const canvasCenter: Vector = [canvas.width / 2, canvas.height / 2];
 
     const toShiftedCoordinates = (canvasCoordinates: Vector): Vector => [
         canvasCoordinates[0] - properties.coordinatesCenter[0],
@@ -83,6 +85,15 @@ const useCoordinates = ({
         return canvasCoordinates;
     };
 
+    const setCenterToMathCoordinates = (mathCoordinates: Vector): void => {
+        const mathCoordinatesInCanvasCoords = toCanvasCoordinates(mathCoordinates);
+        const vectorToTargetCoords = subtractVector(
+            mathCoordinatesInCanvasCoords,
+            properties.coordinatesCenter,
+        );
+        properties.coordinatesCenter = subtractVector(canvasCenter, vectorToTargetCoords);
+    };
+
     const setCoordinatesCenter = (value: Vector) => {
         properties.coordinatesCenter = value;
     };
@@ -102,6 +113,7 @@ const useCoordinates = ({
         setPixelsPerOneMathCoordinate,
         getCoordinatesCenter,
         getPixelsPerOneMathCoordinate,
+        setCenterToMathCoordinates,
     };
 };
 

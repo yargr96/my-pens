@@ -136,9 +136,11 @@ const FractalSets: Module = (mountElement) => {
 
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
+            const centerAsMathCoords = coordinates.toMathCoordinates(canvasCenterCoordinates);
             coordinates.setPixelsPerOneMathCoordinate(
                 coordinates.getPixelsPerOneMathCoordinate() * value,
             );
+            coordinates.setCenterToMathCoordinates(centerAsMathCoords);
             render();
         });
     });
