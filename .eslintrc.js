@@ -28,5 +28,9 @@ module.exports = {
                 order: 'asc',
             },
         }],
+        'prefer-destructuring': ['error', {
+            object: true,
+            array: false,
+        }],
     },
 };

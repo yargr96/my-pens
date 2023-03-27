@@ -1,6 +1,7 @@
 import '@/styles/main.scss';
 
 import burgerMenu from '@/layout/buger-menu';
+import fractalSets from '@/modules/fractal-sets';
 import gameOfLife from '@/modules/game-of-life';
 import gravity from '@/modules/gravity';
 import { IModule, Module } from '@/modules/moduleTypes';
@@ -12,6 +13,10 @@ interface INavItem {
 }
 
 const navItems: INavItem[] = [
+    {
+        text: 'Fractal sets',
+        module: fractalSets,
+    },
     {
         text: 'Game of Life',
         module: gameOfLife,

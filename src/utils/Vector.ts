@@ -1,4 +1,4 @@
-export type Vector = [number, number];
+export type Vector = [x: number, y: number];
 
 export const addVectors = (a: Vector, b: Vector): Vector => [
     a[0] + b[0],
