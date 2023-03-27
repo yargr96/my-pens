@@ -28,6 +28,7 @@ interface IZoomButton extends IControlItemProps {
 }
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
+const BACKGROUND_COLOR = gradient[0];
 
 const C: Vector = [0.14, 0.6];
 
@@ -99,7 +100,7 @@ const FractalSets: Module = (mountElement) => {
             coordinates.getBoundingCanvasCoordinates([2, -2]),
         ];
 
-        context.fillStyle = gradient[0];
+        context.fillStyle = BACKGROUND_COLOR;
         context.fillRect(0, 0, canvas.width, canvas.height);
 
         iterativeRender({
@@ -146,14 +147,16 @@ const FractalSets: Module = (mountElement) => {
     });
 
     let isMouseDown = false;
-    let lastMouseCoordinates: Vector;
+    let startMouseCoordinates: Vector;
     let coordinatesChanged = false;
+    let imageData: ImageData;
+    let deltaCoordinates: Vector;
 
     const handleMouseDown = (e: MouseEvent & TouchEvent) => {
         isMouseDown = true;
 
         const { offsetX, offsetY } = getTouchCoordinates(e);
-        lastMouseCoordinates = [offsetX, offsetY];
+        startMouseCoordinates = [offsetX, offsetY];
     };
 
     const handleMouseMove = (e: MouseEvent & TouchEvent) => {
@@ -163,18 +166,17 @@ const FractalSets: Module = (mountElement) => {
 
         const { offsetX, offsetY } = getTouchCoordinates(e);
 
-        const deltaCoordinates = subtractVector([offsetX, offsetY], lastMouseCoordinates);
+        deltaCoordinates = subtractVector([offsetX, offsetY], startMouseCoordinates);
         if (areSimilarVectors(deltaCoordinates, [0, 0])) {
             return;
         }
 
-        coordinates.setCoordinatesCenter(
-            addVectors(coordinates.getCoordinatesCenter(), deltaCoordinates),
-        );
-        lastMouseCoordinates = [offsetX, offsetY];
         coordinatesChanged = true;
 
-        render({ isLowQuality: true });
+        imageData = imageData ?? context.getImageData(0, 0, canvas.width, canvas.height);
+        context.fillStyle = BACKGROUND_COLOR;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(imageData, ...deltaCoordinates);
     };
     const handleMouseUp = () => {
         if (!isMouseDown) {
@@ -184,8 +186,14 @@ const FractalSets: Module = (mountElement) => {
         isMouseDown = false;
 
         if (coordinatesChanged) {
-            render();
+            coordinates.setCoordinatesCenter(
+                addVectors(coordinates.getCoordinatesCenter(), deltaCoordinates),
+            );
+            deltaCoordinates = null;
+            imageData = null;
             coordinatesChanged = false;
+
+            render();
         }
     };
 
