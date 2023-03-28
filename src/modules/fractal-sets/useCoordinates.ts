@@ -3,13 +3,12 @@ import { multiplyVectorByNumber, subtractVector, Vector } from '@/utils/Vector';
 interface IUseCoordinatesProps {
     coordinatesCenter: Vector;
     mathCoordinateSize: number;
-    canvas: HTMLCanvasElement,
+    canvasSize: Vector,
 }
 
 interface IUseCoordinates {
     toMathCoordinates: (canvasCoordinates: Vector) => Vector;
     toCanvasCoordinates: (mathCoordinates: Vector) => Vector;
-    getBoundingCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     setCoordinatesCenter: (value: Vector) => void;
     setMathCoordinateSize: (value: number) => void;
     getCoordinatesCenter: () => Vector;
@@ -20,16 +19,12 @@ interface IUseCoordinates {
 const useCoordinates = ({
     coordinatesCenter,
     mathCoordinateSize,
-    canvas,
+    canvasSize,
 }: IUseCoordinatesProps): IUseCoordinates => {
     const properties = {
         coordinatesCenter,
         mathCoordinateSize,
     };
-
-    const canvasSize: Vector = [canvas.width, canvas.height];
-    const canvasCenter: Vector = [canvas.width / 2, canvas.height / 2];
-
     const toShiftedCoordinates = (canvasCoordinates: Vector): Vector => [
         canvasCoordinates[0] - properties.coordinatesCenter[0],
         canvasSize[1] - canvasCoordinates[1] - (canvasSize[1] - properties.coordinatesCenter[1]),
@@ -63,35 +58,16 @@ const useCoordinates = ({
         ];
     };
 
-    const getBoundingCanvasCoordinates = (mathCoordinates: Vector): Vector => {
-        const canvasCoordinates = toCanvasCoordinates(mathCoordinates);
-
-        if (canvasCoordinates[0] < 0) {
-            canvasCoordinates[0] = 0;
-        }
-
-        if (canvasCoordinates[0] > canvasSize[0]) {
-            canvasCoordinates[0] = canvasSize[0];
-        }
-
-        if (canvasCoordinates[1] < 0) {
-            canvasCoordinates[1] = 0;
-        }
-
-        if (canvasCoordinates[1] > canvasSize[1]) {
-            canvasCoordinates[1] = canvasSize[1];
-        }
-
-        return canvasCoordinates;
-    };
-
     const setCenterToMathCoordinates = (mathCoordinates: Vector): void => {
         const mathCoordinatesInCanvasCoords = toCanvasCoordinates(mathCoordinates);
         const vectorToTargetCoords = subtractVector(
             mathCoordinatesInCanvasCoords,
             properties.coordinatesCenter,
         );
-        properties.coordinatesCenter = subtractVector(canvasCenter, vectorToTargetCoords);
+        properties.coordinatesCenter = subtractVector(
+            multiplyVectorByNumber(canvasSize, 0.5),
+            vectorToTargetCoords,
+        );
     };
 
     const setCoordinatesCenter = (value: Vector) => {
@@ -108,7 +84,6 @@ const useCoordinates = ({
     return {
         toMathCoordinates,
         toCanvasCoordinates,
-        getBoundingCanvasCoordinates,
         setCoordinatesCenter,
         setMathCoordinateSize,
         getCoordinatesCenter,

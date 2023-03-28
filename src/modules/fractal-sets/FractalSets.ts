@@ -1,14 +1,7 @@
-import { getGradient, gradientPoints } from './gradient';
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import styles from '@/modules/fractal-sets/FractalSets.module.scss';
-import {
-    belongsToSet,
-    ITERATIONS_COUNT,
-    IBelongsToFractalSet,
-} from '@/modules/fractal-sets/belongsToSet';
-import iterativeRender from '@/modules/fractal-sets/iterativeRender';
-import useCoordinates from '@/modules/fractal-sets/useCoordinates';
+import { FractalSetType, IWorkerData } from '@/modules/fractal-sets/renderingWorker';
 import { Module } from '@/modules/moduleTypes';
 import {
     addVectors,
@@ -20,31 +13,23 @@ import isTouchDevice from '@/utils/isTouchDevice';
 import getTouchCoordinates from '@/utils/touchCoordinates';
 
 interface ISelectSetButton extends IControlItemProps {
-    value: (z: Vector) => IBelongsToFractalSet,
+    value: FractalSetType,
 }
 
 interface IZoomButton extends IControlItemProps {
     value: 2 | 0.5,
 }
 
-const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
-const BACKGROUND_COLOR = gradient[0];
-
-const C: Vector = [0.14, 0.6];
-
-const belongsToJuliaSet = (z: Vector): IBelongsToFractalSet => belongsToSet(z, C);
-const belongsToMandelbrotSet = (c: Vector): IBelongsToFractalSet => belongsToSet([0, 0], c);
-
 const setSelectButtons: ISelectSetButton[] = [
     {
         text: 'Mandelbrot set',
         key: 'mandelbrot',
-        value: belongsToMandelbrotSet,
+        value: 'mandelbrot',
     },
     {
         text: 'Julia set',
         key: 'julia',
-        value: belongsToJuliaSet,
+        value: 'julia',
     },
 ];
 
@@ -62,6 +47,8 @@ const zoomButtons: IZoomButton[] = [
 ];
 
 const FractalSets: Module = (mountElement) => {
+    const worker = new Worker(new URL('./renderingWorker', import.meta.url));
+
     const {
         element: canvas,
         setSize,
@@ -86,37 +73,23 @@ const FractalSets: Module = (mountElement) => {
     const canvasCenterCoordinates: Vector = [canvas.width / 2, canvas.height / 2];
     const coordinatesCenterDefault: Vector = canvasCenterCoordinates;
 
-    let belongsTo = belongsToMandelbrotSet;
-
-    const coordinates = useCoordinates({
-        coordinatesCenter: coordinatesCenterDefault,
-        mathCoordinateSize: mathCoordinateSizeDefault,
-        canvas,
-    });
+    let fractalSetType: FractalSetType = 'mandelbrot';
+    let coordinatesCenter: Vector = coordinatesCenterDefault;
+    let mathCoordinateSize: number = mathCoordinateSizeDefault;
 
     const render = ({ isLowQuality = false } = {}): void => {
-        const renderingBounds = [
-            coordinates.getBoundingCanvasCoordinates([-2, 2]),
-            coordinates.getBoundingCanvasCoordinates([2, -2]),
-        ];
+        const message: IWorkerData = {
+            canvasSize: [canvas.width, canvas.height],
+            coordinatesCenter,
+            mathCoordinateSize,
+            fractalSetType,
+        };
 
-        context.fillStyle = BACKGROUND_COLOR;
-        context.fillRect(0, 0, canvas.width, canvas.height);
+        worker.postMessage(message);
 
-        iterativeRender({
-            start: renderingBounds[0],
-            end: renderingBounds[1],
-            isLowQuality,
-            callback: ([x, y], step) => {
-                const mathCoordinates = coordinates.toMathCoordinates([x, y]);
-                const { value, stepsCount } = belongsTo(mathCoordinates);
-
-                context.fillStyle = value
-                    ? '#000'
-                    : gradient[stepsCount];
-                context.fillRect(x, y, step, step);
-            },
-        });
+        worker.onmessage = ({ data }: MessageEvent<ImageData>) => {
+            context.putImageData(data, 0, 0);
+        };
     };
 
     const controls = Controls([
@@ -128,20 +101,22 @@ const FractalSets: Module = (mountElement) => {
 
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            belongsTo = value;
-            coordinates.setMathCoordinateSize(mathCoordinateSizeDefault);
-            coordinates.setCoordinatesCenter(coordinatesCenterDefault);
+            fractalSetType = value;
+            mathCoordinateSize = mathCoordinateSizeDefault;
+            coordinatesCenter = coordinatesCenterDefault;
+
             render();
         });
     });
 
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            const centerAsMathCoords = coordinates.toMathCoordinates(canvasCenterCoordinates);
-            coordinates.setMathCoordinateSize(
-                coordinates.getMathCoordinateSize() * value,
-            );
-            coordinates.setCenterToMathCoordinates(centerAsMathCoords);
+            // todo implement
+            // const centerAsMathCoords = coordinates.toMathCoordinates(canvasCenterCoordinates);
+            // coordinates.setMathCoordinateSize(
+            //     coordinates.getMathCoordinateSize() * value,
+            // );
+            // coordinates.setCenterToMathCoordinates(centerAsMathCoords);
             render();
         });
     });
@@ -174,7 +149,8 @@ const FractalSets: Module = (mountElement) => {
         coordinatesChanged = true;
 
         imageData = imageData ?? context.getImageData(0, 0, canvas.width, canvas.height);
-        context.fillStyle = BACKGROUND_COLOR;
+        // todo цвет из градиента
+        context.fillStyle = '#fff';
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.putImageData(imageData, ...deltaCoordinates);
     };
@@ -186,9 +162,7 @@ const FractalSets: Module = (mountElement) => {
         isMouseDown = false;
 
         if (coordinatesChanged) {
-            coordinates.setCoordinatesCenter(
-                addVectors(coordinates.getCoordinatesCenter(), deltaCoordinates),
-            );
+            coordinatesCenter = addVectors(coordinatesCenter, deltaCoordinates);
             deltaCoordinates = null;
             imageData = null;
             coordinatesChanged = false;
