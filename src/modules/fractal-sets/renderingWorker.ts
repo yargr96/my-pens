@@ -4,16 +4,22 @@ import {
     ITERATIONS_COUNT,
 } from '@/modules/fractal-sets/belongsToSet';
 import { getGradient, gradientPoints } from '@/modules/fractal-sets/gradient';
-import useCoordinates from '@/modules/fractal-sets/useCoordinates';
+import useCoordinates, { IUseCoordinates } from '@/modules/fractal-sets/useCoordinates';
 import { Vector } from '@/utils/Vector';
 
 export type FractalSetType = 'mandelbrot' | 'julia';
 
-export interface IWorkerData {
+export interface IWorkerInitData {
     canvasSize: Vector;
     coordinatesCenter: Vector;
     mathCoordinateSize: number;
-    fractalSetType: FractalSetType;
+}
+
+type MessageType = 'init' | 'setFractalFunction' | 'render';
+
+export interface IMessageData {
+    type: MessageType;
+    payload?: unknown;
 }
 
 const C: Vector = [0.14, 0.6];
@@ -25,32 +31,43 @@ const setFunctions: Record<FractalSetType, (z: Vector) => IBelongsToFractalSet> 
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
 
-const renderCanvas = ({
-    canvasSize,
+let canvas: OffscreenCanvas;
+let canvasSize: Vector;
+let context: OffscreenCanvasRenderingContext2D;
+let coordinates: IUseCoordinates;
+let fractalSetFunction: FractalSetType = 'mandelbrot';
+
+const init = ({
+    canvasSize: canvasSizeProp,
     coordinatesCenter,
     mathCoordinateSize,
-    fractalSetType,
-}: IWorkerData): ImageData => {
-    const canvas = new OffscreenCanvas(...canvasSize);
-    const context = <OffscreenCanvasRenderingContext2D>canvas.getContext('2d');
-
-    const coordinates = useCoordinates({
+}: IWorkerInitData) => {
+    canvasSize = canvasSizeProp;
+    canvas = new OffscreenCanvas(...canvasSize);
+    context = <OffscreenCanvasRenderingContext2D>canvas.getContext('2d');
+    coordinates = useCoordinates({
         coordinatesCenter,
         mathCoordinateSize,
         canvasSize,
     });
+};
 
+const setFractalFunction = (value: FractalSetType) => {
+    fractalSetFunction = value;
+};
+
+const render = () => {
     const renderingBounds = {
         start: [0, 0],
         end: canvasSize,
     };
 
-    const fractalSetFunction = setFunctions[fractalSetType];
+    const setFunction = setFunctions[fractalSetFunction];
 
     for (let x = renderingBounds.start[0]; x < renderingBounds.end[0]; x += 1) {
         for (let y = renderingBounds.start[1]; y < renderingBounds.end[1]; y += 1) {
             const mathCoordinates = coordinates.toMathCoordinates([x, y]);
-            const { value, stepsCount } = fractalSetFunction(mathCoordinates);
+            const { value, stepsCount } = setFunction(mathCoordinates);
 
             context.fillStyle = value
                 ? '#000'
@@ -59,9 +76,19 @@ const renderCanvas = ({
         }
     }
 
-    return context.getImageData(0, 0, ...canvasSize);
+    const imageData: ImageData = context.getImageData(0, 0, ...canvasSize);
+
+    postMessage(imageData);
 };
 
-onmessage = ({ data }: MessageEvent<IWorkerData>) => {
-    postMessage(renderCanvas(data));
+onmessage = ({ data }: MessageEvent<IMessageData>) => {
+    const { type, payload } = data;
+
+    if (type === 'init') {
+        init(<IWorkerInitData>payload);
+    }
+
+    if (type === 'render') {
+        render();
+    }
 };

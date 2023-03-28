@@ -6,7 +6,7 @@ interface IUseCoordinatesProps {
     canvasSize: Vector,
 }
 
-interface IUseCoordinates {
+export interface IUseCoordinates {
     toMathCoordinates: (canvasCoordinates: Vector) => Vector;
     toCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     setCoordinatesCenter: (value: Vector) => void;
