@@ -80,7 +80,7 @@ const FractalSets: Module = (mountElement) => {
 
     const coordinatesSquareSize = Math.min(canvas.width, canvas.height) - PADDING * 2;
     const COORDINATE_SQUARE_MATH_SIZE = 4;
-    const pixelsPerOneMathCoordinateDefault: number = (
+    const mathCoordinateSizeDefault: number = (
         coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE
     );
     const canvasCenterCoordinates: Vector = [canvas.width / 2, canvas.height / 2];
@@ -90,7 +90,7 @@ const FractalSets: Module = (mountElement) => {
 
     const coordinates = useCoordinates({
         coordinatesCenter: coordinatesCenterDefault,
-        pixelsPerOneMathCoordinate: pixelsPerOneMathCoordinateDefault,
+        mathCoordinateSize: mathCoordinateSizeDefault,
         canvas,
     });
 
@@ -129,7 +129,7 @@ const FractalSets: Module = (mountElement) => {
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             belongsTo = value;
-            coordinates.setPixelsPerOneMathCoordinate(pixelsPerOneMathCoordinateDefault);
+            coordinates.setMathCoordinateSize(mathCoordinateSizeDefault);
             coordinates.setCoordinatesCenter(coordinatesCenterDefault);
             render();
         });
@@ -138,8 +138,8 @@ const FractalSets: Module = (mountElement) => {
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
             const centerAsMathCoords = coordinates.toMathCoordinates(canvasCenterCoordinates);
-            coordinates.setPixelsPerOneMathCoordinate(
-                coordinates.getPixelsPerOneMathCoordinate() * value,
+            coordinates.setMathCoordinateSize(
+                coordinates.getMathCoordinateSize() * value,
             );
             coordinates.setCenterToMathCoordinates(centerAsMathCoords);
             render();

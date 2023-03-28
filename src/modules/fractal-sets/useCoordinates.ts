@@ -2,7 +2,7 @@ import { multiplyVectorByNumber, subtractVector, Vector } from '@/utils/Vector';
 
 interface IUseCoordinatesProps {
     coordinatesCenter: Vector;
-    pixelsPerOneMathCoordinate: number;
+    mathCoordinateSize: number;
     canvas: HTMLCanvasElement,
 }
 
@@ -11,20 +11,20 @@ interface IUseCoordinates {
     toCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     getBoundingCanvasCoordinates: (mathCoordinates: Vector) => Vector;
     setCoordinatesCenter: (value: Vector) => void;
-    setPixelsPerOneMathCoordinate: (value: number) => void;
+    setMathCoordinateSize: (value: number) => void;
     getCoordinatesCenter: () => Vector;
-    getPixelsPerOneMathCoordinate: () => number;
+    getMathCoordinateSize: () => number;
     setCenterToMathCoordinates: (mathCoordinates: Vector) => void;
 }
 
 const useCoordinates = ({
     coordinatesCenter,
-    pixelsPerOneMathCoordinate,
+    mathCoordinateSize,
     canvas,
 }: IUseCoordinatesProps): IUseCoordinates => {
     const properties = {
         coordinatesCenter,
-        pixelsPerOneMathCoordinate,
+        mathCoordinateSize,
     };
 
     const canvasSize: Vector = [canvas.width, canvas.height];
@@ -45,14 +45,14 @@ const useCoordinates = ({
 
         return multiplyVectorByNumber(
             shiftedCoordinates,
-            1 / properties.pixelsPerOneMathCoordinate,
+            1 / properties.mathCoordinateSize,
         );
     };
 
     const toCanvasCoordinates = (mathCoordinates: Vector): Vector => {
         const shiftedCoordinates = multiplyVectorByNumber(
             mathCoordinates,
-            properties.pixelsPerOneMathCoordinate,
+            properties.mathCoordinateSize,
         );
 
         const unshiftedCoordinates = toUnshiftedCoordinates(shiftedCoordinates);
@@ -98,21 +98,21 @@ const useCoordinates = ({
         properties.coordinatesCenter = value;
     };
 
-    const setPixelsPerOneMathCoordinate = (value: number) => {
-        properties.pixelsPerOneMathCoordinate = value;
+    const setMathCoordinateSize = (value: number) => {
+        properties.mathCoordinateSize = value;
     };
 
     const getCoordinatesCenter = (): Vector => properties.coordinatesCenter;
-    const getPixelsPerOneMathCoordinate = (): number => properties.pixelsPerOneMathCoordinate;
+    const getMathCoordinateSize = (): number => properties.mathCoordinateSize;
 
     return {
         toMathCoordinates,
         toCanvasCoordinates,
         getBoundingCanvasCoordinates,
         setCoordinatesCenter,
-        setPixelsPerOneMathCoordinate,
+        setMathCoordinateSize,
         getCoordinatesCenter,
-        getPixelsPerOneMathCoordinate,
+        getMathCoordinateSize,
         setCenterToMathCoordinates,
     };
 };
