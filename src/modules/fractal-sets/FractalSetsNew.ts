@@ -1,6 +1,6 @@
 import Canvas from '@/components/Canvas';
 import styles from '@/modules/fractal-sets/FractalSets.module.scss';
-import { IMessageData } from '@/modules/fractal-sets/renderingWorker';
+import { IMessage } from '@/modules/fractal-sets/renderingWorker';
 import { Module } from '@/modules/moduleTypes';
 import { multiplyVectorByNumber, Vector } from '@/utils/Vector';
 
@@ -33,7 +33,7 @@ const FractalSets: Module = (mountElement) => {
         context.putImageData(data, 0, 0);
     };
 
-    const initMessage: IMessageData = {
+    const initMessage: IMessage = {
         type: 'init',
         payload: {
             canvasSize: [canvas.width, canvas.height],
@@ -44,7 +44,7 @@ const FractalSets: Module = (mountElement) => {
     worker.postMessage(initMessage);
 
     const render = () => {
-        const renderMessage: IMessageData = { type: 'render' };
+        const renderMessage: IMessage = { type: 'render' };
         worker.postMessage(renderMessage);
     };
 

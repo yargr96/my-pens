@@ -15,12 +15,15 @@ export interface IWorkerInitData {
     mathCoordinateSize: number;
 }
 
-type MessageType = 'init' | 'setFractalFunction' | 'render';
-
-export interface IMessageData {
-    type: MessageType;
-    payload?: unknown;
-}
+export type IMessage = {
+    type: 'init';
+    payload: IWorkerInitData;
+} | {
+    type: 'setFractalFunction';
+    payload: FractalSetType;
+} | {
+    type: 'render';
+};
 
 const C: Vector = [0.14, 0.6];
 
@@ -81,11 +84,11 @@ const render = () => {
     postMessage(imageData);
 };
 
-onmessage = ({ data }: MessageEvent<IMessageData>) => {
-    const { type, payload } = data;
+onmessage = ({ data }: MessageEvent<IMessage>) => {
+    const { type } = data;
 
     if (type === 'init') {
-        init(<IWorkerInitData>payload);
+        init(data.payload);
     }
 
     if (type === 'render') {
