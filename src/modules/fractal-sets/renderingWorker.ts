@@ -34,6 +34,16 @@ const setFunctions: Record<FractalSetType, (z: Vector) => IBelongsToFractalSet> 
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
 
+interface IDefaults {
+    coordinatesCenter: Vector;
+    mathCoordinateSize: number;
+}
+
+const defaults: IDefaults = {
+    coordinatesCenter: null,
+    mathCoordinateSize: null,
+};
+
 let canvas: OffscreenCanvas;
 let canvasSize: Vector;
 let context: OffscreenCanvasRenderingContext2D;
@@ -45,18 +55,18 @@ const init = ({
     coordinatesCenter,
     mathCoordinateSize,
 }: IWorkerInitData) => {
+    defaults.coordinatesCenter = coordinatesCenter;
+    defaults.mathCoordinateSize = mathCoordinateSize;
+
     canvasSize = canvasSizeProp;
     canvas = new OffscreenCanvas(...canvasSize);
-    context = <OffscreenCanvasRenderingContext2D>canvas.getContext('2d');
+    context = <OffscreenCanvasRenderingContext2D>canvas
+        .getContext('2d', { willReadFrequently: true });
     coordinates = useCoordinates({
         coordinatesCenter,
         mathCoordinateSize,
         canvasSize,
     });
-};
-
-const setFractalFunction = (value: FractalSetType) => {
-    fractalSetFunction = value;
 };
 
 const render = () => {
@@ -84,6 +94,14 @@ const render = () => {
     postMessage(imageData);
 };
 
+const setFractalFunction = (value: FractalSetType) => {
+    fractalSetFunction = value;
+    coordinates.setCoordinatesCenter(defaults.coordinatesCenter);
+    coordinates.setMathCoordinateSize(defaults.mathCoordinateSize);
+
+    render();
+};
+
 onmessage = ({ data }: MessageEvent<IMessage>) => {
     const { type } = data;
 
@@ -93,5 +111,9 @@ onmessage = ({ data }: MessageEvent<IMessage>) => {
 
     if (type === 'render') {
         render();
+    }
+
+    if (type === 'setFractalFunction') {
+        setFractalFunction(data.payload);
     }
 };

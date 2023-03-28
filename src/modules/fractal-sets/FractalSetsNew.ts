@@ -1,11 +1,46 @@
 import Canvas from '@/components/Canvas';
+import Controls, { IControlItemProps } from '@/components/Controls';
 import styles from '@/modules/fractal-sets/FractalSets.module.scss';
-import { IMessage } from '@/modules/fractal-sets/renderingWorker';
+import { FractalSetType, IMessage } from '@/modules/fractal-sets/renderingWorker';
 import { Module } from '@/modules/moduleTypes';
 import { multiplyVectorByNumber, Vector } from '@/utils/Vector';
 
 const DEFAULT_PADDING = 20;
 const COORDINATE_SQUARE_MATH_SIZE = 4;
+
+interface ISelectSetButton extends IControlItemProps {
+    value: FractalSetType,
+}
+
+interface IZoomButton extends IControlItemProps {
+    value: 2 | 0.5,
+}
+
+const setSelectButtons: ISelectSetButton[] = [
+    {
+        text: 'Mandelbrot set',
+        key: 'mandelbrot',
+        value: 'mandelbrot',
+    },
+    {
+        text: 'Julia set',
+        key: 'julia',
+        value: 'julia',
+    },
+];
+
+const zoomButtons: IZoomButton[] = [
+    {
+        text: '+',
+        key: 'plus',
+        value: 2,
+    },
+    {
+        text: '-',
+        key: 'minus',
+        value: 0.5,
+    },
+];
 
 const FractalSets: Module = (mountElement) => {
     const {
@@ -47,6 +82,24 @@ const FractalSets: Module = (mountElement) => {
         const renderMessage: IMessage = { type: 'render' };
         worker.postMessage(renderMessage);
     };
+
+    const controls = Controls([
+        setSelectButtons,
+        zoomButtons,
+    ]);
+
+    controls.append(mountElement);
+
+    setSelectButtons.forEach(({ key, value }) => {
+        controls.elements[key].addEventListener('click', () => {
+            const selectSetMessage: IMessage = {
+                type: 'setFractalFunction',
+                payload: value,
+            };
+
+            worker.postMessage(selectSetMessage);
+        });
+    });
 
     render();
 
