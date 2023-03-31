@@ -6,7 +6,7 @@ import {
 import { getGradient, gradientPoints } from '@/modules/fractal-sets/gradient';
 import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates, { IUseCoordinates } from '@/modules/fractal-sets/useCoordinates';
-import { Vector } from '@/utils/Vector';
+import { addVectors, Vector } from '@/utils/Vector';
 import { useRenderLoop } from '@/utils/useRenderLoop';
 
 export type FractalSetType = 'mandelbrot' | 'julia';
@@ -25,6 +25,9 @@ export type IMessage = {
     payload: FractalSetType;
 } | {
     type: 'render';
+} | {
+    type: 'moveCenter';
+    payload: Vector;
 };
 
 const C: Vector = [0.14, 0.6];
@@ -35,6 +38,8 @@ const setFunctions: Record<FractalSetType, (z: Vector) => IBelongsToFractalSet> 
 };
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
+
+export const BACKGROUND_COLOR = gradient[0];
 
 const { getRenderLoop } = useRenderLoop();
 
@@ -108,6 +113,14 @@ const setFractalFunction = (value: FractalSetType) => {
     render();
 };
 
+const moveCenter = (delta: Vector) => {
+    coordinates.setCoordinatesCenter(addVectors(
+        coordinates.getCoordinatesCenter(),
+        delta,
+    ));
+    render();
+};
+
 onmessage = ({ data }: MessageEvent<IMessage>) => {
     const { type } = data;
 
@@ -121,5 +134,9 @@ onmessage = ({ data }: MessageEvent<IMessage>) => {
 
     if (type === 'setFractalFunction') {
         setFractalFunction(data.payload);
+    }
+
+    if (type === 'moveCenter') {
+        moveCenter(data.payload);
     }
 };

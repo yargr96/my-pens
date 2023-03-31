@@ -1,9 +1,16 @@
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import styles from '@/modules/fractal-sets/FractalSets.module.scss';
-import { FractalSetType, IMessage } from '@/modules/fractal-sets/renderingWorker';
+import { BACKGROUND_COLOR, FractalSetType, IMessage } from '@/modules/fractal-sets/renderingWorker';
 import { Module } from '@/modules/moduleTypes';
-import { multiplyVectorByNumber, Vector } from '@/utils/Vector';
+import {
+    areSimilarVectors,
+    multiplyVectorByNumber,
+    subtractVector,
+    Vector,
+} from '@/utils/Vector';
+import isTouchDevice from '@/utils/isTouchDevice';
+import getTouchCoordinates from '@/utils/touchCoordinates';
 
 const DEFAULT_PADDING = 20;
 const COORDINATE_SQUARE_MATH_SIZE = 4;
@@ -101,9 +108,76 @@ const FractalSets: Module = (mountElement) => {
         });
     });
 
+    let isMouseDown = false;
+    let startMouseCoordinates: Vector;
+    let coordinatesChanged = false;
+    let imageData: ImageData;
+    let deltaCoordinates: Vector;
+
+    const handleMouseDown = (e: MouseEvent & TouchEvent) => {
+        isMouseDown = true;
+
+        const { offsetX, offsetY } = getTouchCoordinates(e);
+        startMouseCoordinates = [offsetX, offsetY];
+    };
+
+    const handleMouseMove = (e: MouseEvent & TouchEvent) => {
+        if (!isMouseDown) {
+            return;
+        }
+
+        const { offsetX, offsetY } = getTouchCoordinates(e);
+
+        deltaCoordinates = subtractVector([offsetX, offsetY], startMouseCoordinates);
+        if (areSimilarVectors(deltaCoordinates, [0, 0])) {
+            return;
+        }
+
+        coordinatesChanged = true;
+
+        imageData = imageData ?? context.getImageData(0, 0, canvas.width, canvas.height);
+        context.fillStyle = BACKGROUND_COLOR;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.putImageData(imageData, ...deltaCoordinates);
+    };
+    const handleMouseUp = () => {
+        if (!isMouseDown) {
+            return;
+        }
+
+        isMouseDown = false;
+
+        if (coordinatesChanged) {
+            const setCenterMessage: IMessage = {
+                type: 'moveCenter',
+                payload: deltaCoordinates,
+            };
+            worker.postMessage(setCenterMessage);
+
+            deltaCoordinates = null;
+            imageData = null;
+            coordinatesChanged = false;
+        }
+    };
+
+    if (isTouchDevice()) {
+        canvas.addEventListener('touchstart', handleMouseDown);
+        canvas.addEventListener('touchmove', handleMouseMove);
+        window.addEventListener('touchend', handleMouseUp);
+    } else {
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+    }
+
     render();
 
-    return {};
+    return {
+        beforeUnmount: () => {
+            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('touchend', handleMouseUp);
+        },
+    };
 };
 
 export default FractalSets;
