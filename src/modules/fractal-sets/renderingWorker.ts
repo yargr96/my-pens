@@ -4,8 +4,10 @@ import {
     ITERATIONS_COUNT,
 } from '@/modules/fractal-sets/belongsToSet';
 import { getGradient, gradientPoints } from '@/modules/fractal-sets/gradient';
+import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates, { IUseCoordinates } from '@/modules/fractal-sets/useCoordinates';
 import { Vector } from '@/utils/Vector';
+import { useRenderLoop } from '@/utils/useRenderLoop';
 
 export type FractalSetType = 'mandelbrot' | 'julia';
 
@@ -33,6 +35,8 @@ const setFunctions: Record<FractalSetType, (z: Vector) => IBelongsToFractalSet> 
 };
 
 const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
+
+const { getRenderLoop } = useRenderLoop();
 
 interface IDefaults {
     coordinatesCenter: Vector;
@@ -70,28 +74,30 @@ const init = ({
 };
 
 const render = () => {
-    const renderingBounds = {
+    const renderingBounds: { start: Vector, end: Vector } = {
         start: [0, 0],
         end: canvasSize,
     };
 
     const setFunction = setFunctions[fractalSetFunction];
 
-    for (let x = renderingBounds.start[0]; x < renderingBounds.end[0]; x += 1) {
-        for (let y = renderingBounds.start[1]; y < renderingBounds.end[1]; y += 1) {
+    iterativeRender({
+        start: renderingBounds.start,
+        end: renderingBounds.end,
+        getRenderLoop,
+        callback: ([x, y], step) => {
             const mathCoordinates = coordinates.toMathCoordinates([x, y]);
             const { value, stepsCount } = setFunction(mathCoordinates);
-
             context.fillStyle = value
                 ? '#000'
                 : gradient[stepsCount];
-            context.fillRect(x, y, 1, 1);
-        }
-    }
-
-    const imageData: ImageData = context.getImageData(0, 0, ...canvasSize);
-
-    postMessage(imageData);
+            context.fillRect(x, y, step, step);
+        },
+        iterationEndCallback: () => {
+            const imageData: ImageData = context.getImageData(0, 0, ...canvasSize);
+            postMessage(imageData);
+        },
+    });
 };
 
 const setFractalFunction = (value: FractalSetType) => {

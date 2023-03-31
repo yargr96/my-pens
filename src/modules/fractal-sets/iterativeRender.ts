@@ -1,12 +1,14 @@
 import { Vector } from '@/utils/Vector';
-import getRenderLoop from '@/utils/useRenderLoop';
+import getRenderLoopDefault from '@/utils/useRenderLoop';
 
 interface IterativeRender {
     start: Vector;
     end: Vector;
     step?: number;
     callback: (coordinates: Vector, step: number) => void;
+    iterationEndCallback?: () => void;
     isLowQuality?: boolean;
+    getRenderLoop?: typeof getRenderLoopDefault;
 }
 
 const iterativeRender = ({
@@ -14,7 +16,9 @@ const iterativeRender = ({
     end,
     step = 16,
     callback,
+    iterationEndCallback = () => {},
     isLowQuality = false,
+    getRenderLoop = getRenderLoopDefault,
 }: IterativeRender) => {
     let currentStep = step;
     let isRecursiveCall = false;
@@ -32,6 +36,8 @@ const iterativeRender = ({
                 callback([x, y], currentStep);
             }
         }
+
+        iterationEndCallback();
 
         if (currentStep <= 1 || isLowQuality) {
             renderLoop.stop();
