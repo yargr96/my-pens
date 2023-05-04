@@ -108,6 +108,17 @@ const FractalSets: Module = (mountElement) => {
         });
     });
 
+    zoomButtons.forEach(({ key, value }) => {
+        controls.elements[key].addEventListener('click', () => {
+            const zoomMessage: IMessage = {
+                type: 'zoom',
+                payload: value,
+            };
+
+            worker.postMessage(zoomMessage);
+        });
+    });
+
     let isMouseDown = false;
     let startMouseCoordinates: Vector;
     let coordinatesChanged = false;

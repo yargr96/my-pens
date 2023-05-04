@@ -6,7 +6,7 @@ import {
 import { getGradient, gradientPoints } from '@/modules/fractal-sets/gradient';
 import iterativeRender from '@/modules/fractal-sets/iterativeRender';
 import useCoordinates, { IUseCoordinates } from '@/modules/fractal-sets/useCoordinates';
-import { addVectors, Vector } from '@/utils/Vector';
+import { addVectors, multiplyVectorByNumber, Vector } from '@/utils/Vector';
 import { useRenderLoop } from '@/utils/useRenderLoop';
 
 export type FractalSetType = 'mandelbrot' | 'julia';
@@ -28,6 +28,9 @@ export type IMessage = {
 } | {
     type: 'moveCenter';
     payload: Vector;
+} | {
+    type: 'zoom',
+    payload: number,
 };
 
 const C: Vector = [0.14, 0.6];
@@ -78,7 +81,7 @@ const init = ({
     });
 };
 
-const render = () => {
+const render = (): void => {
     const renderingBounds: { start: Vector, end: Vector } = {
         start: [0, 0],
         end: canvasSize,
@@ -105,7 +108,7 @@ const render = () => {
     });
 };
 
-const setFractalFunction = (value: FractalSetType) => {
+const setFractalFunction = (value: FractalSetType): void => {
     fractalSetFunction = value;
     coordinates.setCoordinatesCenter(defaults.coordinatesCenter);
     coordinates.setMathCoordinateSize(defaults.mathCoordinateSize);
@@ -113,11 +116,24 @@ const setFractalFunction = (value: FractalSetType) => {
     render();
 };
 
-const moveCenter = (delta: Vector) => {
+const moveCenter = (delta: Vector): void => {
     coordinates.setCoordinatesCenter(addVectors(
         coordinates.getCoordinatesCenter(),
         delta,
     ));
+
+    render();
+};
+
+const zoom = (value: number): void => {
+    const centerAsMathCoords = coordinates.toMathCoordinates(
+        multiplyVectorByNumber(canvasSize, 0.5),
+    );
+    coordinates.setMathCoordinateSize(
+        coordinates.getMathCoordinateSize() * value,
+    );
+    coordinates.setCenterToMathCoordinates(centerAsMathCoords);
+
     render();
 };
 
@@ -138,5 +154,9 @@ onmessage = ({ data }: MessageEvent<IMessage>) => {
 
     if (type === 'moveCenter') {
         moveCenter(data.payload);
+    }
+
+    if (type === 'zoom') {
+        zoom(data.payload);
     }
 };
