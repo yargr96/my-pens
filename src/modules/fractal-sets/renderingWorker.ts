@@ -1,0 +1,162 @@
+import {
+    belongsToSet,
+    IBelongsToFractalSet,
+    ITERATIONS_COUNT,
+} from '@/modules/fractal-sets/belongsToSet';
+import { getGradient, gradientPoints } from '@/modules/fractal-sets/gradient';
+import iterativeRender from '@/modules/fractal-sets/iterativeRender';
+import useCoordinates, { IUseCoordinates } from '@/modules/fractal-sets/useCoordinates';
+import { addVectors, multiplyVectorByNumber, Vector } from '@/utils/Vector';
+import { useRenderLoop } from '@/utils/useRenderLoop';
+
+export type FractalSetType = 'mandelbrot' | 'julia';
+
+export interface IWorkerInitData {
+    canvasSize: Vector;
+    coordinatesCenter: Vector;
+    mathCoordinateSize: number;
+}
+
+export type IMessage = {
+    type: 'init';
+    payload: IWorkerInitData;
+} | {
+    type: 'setFractalFunction';
+    payload: FractalSetType;
+} | {
+    type: 'render';
+} | {
+    type: 'moveCenter';
+    payload: Vector;
+} | {
+    type: 'zoom',
+    payload: number,
+};
+
+const C: Vector = [0.14, 0.6];
+
+const setFunctions: Record<FractalSetType, (z: Vector) => IBelongsToFractalSet> = {
+    julia: (z: Vector): IBelongsToFractalSet => belongsToSet(z, C),
+    mandelbrot: (c: Vector): IBelongsToFractalSet => belongsToSet([0, 0], c),
+};
+
+const gradient = getGradient(gradientPoints, ITERATIONS_COUNT);
+
+export const BACKGROUND_COLOR = gradient[0];
+
+const { getRenderLoop } = useRenderLoop();
+
+interface IDefaults {
+    coordinatesCenter: Vector;
+    mathCoordinateSize: number;
+}
+
+const defaults: IDefaults = {
+    coordinatesCenter: null,
+    mathCoordinateSize: null,
+};
+
+let canvas: OffscreenCanvas;
+let canvasSize: Vector;
+let context: OffscreenCanvasRenderingContext2D;
+let coordinates: IUseCoordinates;
+let fractalSetFunction: FractalSetType = 'mandelbrot';
+
+const init = ({
+    canvasSize: canvasSizeProp,
+    coordinatesCenter,
+    mathCoordinateSize,
+}: IWorkerInitData) => {
+    defaults.coordinatesCenter = coordinatesCenter;
+    defaults.mathCoordinateSize = mathCoordinateSize;
+
+    canvasSize = canvasSizeProp;
+    canvas = new OffscreenCanvas(...canvasSize);
+    context = <OffscreenCanvasRenderingContext2D>canvas
+        .getContext('2d', { willReadFrequently: true });
+    coordinates = useCoordinates({
+        coordinatesCenter,
+        mathCoordinateSize,
+        canvasSize,
+    });
+};
+
+const render = (): void => {
+    const renderingBounds: { start: Vector, end: Vector } = {
+        start: [0, 0],
+        end: canvasSize,
+    };
+
+    const setFunction = setFunctions[fractalSetFunction];
+
+    iterativeRender({
+        start: renderingBounds.start,
+        end: renderingBounds.end,
+        getRenderLoop,
+        callback: ([x, y], step) => {
+            const mathCoordinates = coordinates.toMathCoordinates([x, y]);
+            const { value, stepsCount } = setFunction(mathCoordinates);
+            context.fillStyle = value
+                ? '#000'
+                : gradient[stepsCount];
+            context.fillRect(x, y, step, step);
+        },
+        iterationEndCallback: () => {
+            const imageData: ImageData = context.getImageData(0, 0, ...canvasSize);
+            postMessage(imageData);
+        },
+    });
+};
+
+const setFractalFunction = (value: FractalSetType): void => {
+    fractalSetFunction = value;
+    coordinates.setCoordinatesCenter(defaults.coordinatesCenter);
+    coordinates.setMathCoordinateSize(defaults.mathCoordinateSize);
+
+    render();
+};
+
+const moveCenter = (delta: Vector): void => {
+    coordinates.setCoordinatesCenter(addVectors(
+        coordinates.getCoordinatesCenter(),
+        delta,
+    ));
+
+    render();
+};
+
+const zoom = (value: number): void => {
+    const centerAsMathCoords = coordinates.toMathCoordinates(
+        multiplyVectorByNumber(canvasSize, 0.5),
+    );
+    coordinates.setMathCoordinateSize(
+        coordinates.getMathCoordinateSize() * value,
+    );
+    coordinates.setCenterToMathCoordinates(centerAsMathCoords);
+
+    render();
+};
+
+onmessage = ({ data }: MessageEvent<IMessage>) => {
+    const { type } = data;
+
+    if (type === 'init') {
+        init(data.payload);
+    }
+
+    if (type === 'render') {
+        render();
+    }
+
+    if (type === 'setFractalFunction') {
+        setFractalFunction(data.payload);
+    }
+
+    if (type === 'moveCenter') {
+        moveCenter(data.payload);
+    }
+
+    if (type === 'zoom') {
+        zoom(data.payload);
+    }
+};

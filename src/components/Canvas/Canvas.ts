@@ -2,7 +2,7 @@ import styles from './Canvas.module.scss';
 
 interface ICanvas {
     element: HTMLCanvasElement;
-    getContext: () => CanvasRenderingContext2D;
+    getContext: (options?: CanvasRenderingContext2DSettings) => CanvasRenderingContext2D;
     setSize: (mountElement: Element, scale?: number) => void;
     append: (element: Element) => void;
 }
@@ -13,7 +13,9 @@ const Canvas = (): ICanvas => {
     const canvas: HTMLCanvasElement = document.createElement('canvas');
     canvas.className = styles.canvas;
 
-    const getContext = (): CanvasRenderingContext2D => canvas.getContext('2d');
+    const getContext = (
+        options: CanvasRenderingContext2DSettings,
+    ): CanvasRenderingContext2D => canvas.getContext('2d', options);
 
     const setSize = (mountElement: Element, scale = DEFAULT_CANVAS_SCALE) => {
         const { width, height } = mountElement.getBoundingClientRect();

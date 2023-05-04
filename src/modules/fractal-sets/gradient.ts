@@ -25,8 +25,8 @@ const roundVector3 = (vector: Vector3): Vector3 => [
 ];
 
 export const gradientPoints: Vector3[] = [
-    [248, 249, 250],
-    [25, 135, 84],
+    [0, 6, 94],
+    [223, 244, 220],
 ];
 
 const vectorToColor = (vector: Vector3): string => `rgb(${vector[0]}, ${vector[1]}, ${vector[2]})`;
