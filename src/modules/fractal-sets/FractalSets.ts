@@ -70,8 +70,13 @@ const FractalSets: Module = (mountElement) => {
     );
 
     const worker = new Worker(new URL('./renderingWorker', import.meta.url));
+    let coordinatesChanged = false;
 
     worker.onmessage = ({ data }: MessageEvent<ImageData>) => {
+        if (coordinatesChanged) {
+            return;
+        }
+
         context.putImageData(data, 0, 0);
     };
 
@@ -121,7 +126,6 @@ const FractalSets: Module = (mountElement) => {
 
     let isMouseDown = false;
     let startMouseCoordinates: Vector;
-    let coordinatesChanged = false;
     let imageData: ImageData;
     let deltaCoordinates: Vector;
 
@@ -151,6 +155,7 @@ const FractalSets: Module = (mountElement) => {
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.putImageData(imageData, ...deltaCoordinates);
     };
+
     const handleMouseUp = () => {
         if (!isMouseDown) {
             return;
