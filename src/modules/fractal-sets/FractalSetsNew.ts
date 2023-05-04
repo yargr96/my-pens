@@ -61,7 +61,7 @@ const FractalSets: Module = (mountElement) => {
     setSize(mountElement, 1);
     append(mountElement);
 
-    const context: CanvasRenderingContext2D = getContext();
+    const context: CanvasRenderingContext2D = getContext({ willReadFrequently: true });
     const canvasSize: Vector = [canvas.width, canvas.height];
     const coordinatesCenter: Vector = multiplyVectorByNumber(canvasSize, 0.5);
     const coordinatesSquareSize = Math.min(...canvasSize) - DEFAULT_PADDING * 2;
