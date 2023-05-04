@@ -1,1 +1,1 @@
-export { default } from '@/modules/fractal-sets/FractalSetsNew';
+export { default } from '@/modules/fractal-sets/FractalSets';

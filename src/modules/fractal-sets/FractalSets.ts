@@ -1,16 +1,19 @@
 import Canvas from '@/components/Canvas';
 import Controls, { IControlItemProps } from '@/components/Controls';
 import styles from '@/modules/fractal-sets/FractalSets.module.scss';
-import { FractalSetType, IWorkerData } from '@/modules/fractal-sets/renderingWorker';
+import { BACKGROUND_COLOR, FractalSetType, IMessage } from '@/modules/fractal-sets/renderingWorker';
 import { Module } from '@/modules/moduleTypes';
 import {
-    addVectors,
     areSimilarVectors,
+    multiplyVectorByNumber,
     subtractVector,
     Vector,
 } from '@/utils/Vector';
 import isTouchDevice from '@/utils/isTouchDevice';
 import getTouchCoordinates from '@/utils/touchCoordinates';
+
+const DEFAULT_PADDING = 20;
+const COORDINATE_SQUARE_MATH_SIZE = 4;
 
 interface ISelectSetButton extends IControlItemProps {
     value: FractalSetType,
@@ -47,8 +50,6 @@ const zoomButtons: IZoomButton[] = [
 ];
 
 const FractalSets: Module = (mountElement) => {
-    const worker = new Worker(new URL('./renderingWorker', import.meta.url));
-
     const {
         element: canvas,
         setSize,
@@ -57,39 +58,36 @@ const FractalSets: Module = (mountElement) => {
     } = Canvas();
 
     canvas.classList.add(styles.canvas);
-
     setSize(mountElement, 1);
     append(mountElement);
 
-    const context: CanvasRenderingContext2D = getContext();
-
-    const PADDING = 20;
-
-    const coordinatesSquareSize = Math.min(canvas.width, canvas.height) - PADDING * 2;
-    const COORDINATE_SQUARE_MATH_SIZE = 4;
-    const mathCoordinateSizeDefault: number = (
+    const context: CanvasRenderingContext2D = getContext({ willReadFrequently: true });
+    const canvasSize: Vector = [canvas.width, canvas.height];
+    const coordinatesCenter: Vector = multiplyVectorByNumber(canvasSize, 0.5);
+    const coordinatesSquareSize = Math.min(...canvasSize) - DEFAULT_PADDING * 2;
+    const mathCoordinateSize: number = (
         coordinatesSquareSize / COORDINATE_SQUARE_MATH_SIZE
     );
-    const canvasCenterCoordinates: Vector = [canvas.width / 2, canvas.height / 2];
-    const coordinatesCenterDefault: Vector = canvasCenterCoordinates;
 
-    let fractalSetType: FractalSetType = 'mandelbrot';
-    let coordinatesCenter: Vector = coordinatesCenterDefault;
-    let mathCoordinateSize: number = mathCoordinateSizeDefault;
+    const worker = new Worker(new URL('./renderingWorker', import.meta.url));
 
-    const render = ({ isLowQuality = false } = {}): void => {
-        const message: IWorkerData = {
+    worker.onmessage = ({ data }: MessageEvent<ImageData>) => {
+        context.putImageData(data, 0, 0);
+    };
+
+    const initMessage: IMessage = {
+        type: 'init',
+        payload: {
             canvasSize: [canvas.width, canvas.height],
             coordinatesCenter,
             mathCoordinateSize,
-            fractalSetType,
-        };
+        },
+    };
+    worker.postMessage(initMessage);
 
-        worker.postMessage(message);
-
-        worker.onmessage = ({ data }: MessageEvent<ImageData>) => {
-            context.putImageData(data, 0, 0);
-        };
+    const render = () => {
+        const renderMessage: IMessage = { type: 'render' };
+        worker.postMessage(renderMessage);
     };
 
     const controls = Controls([
@@ -101,23 +99,23 @@ const FractalSets: Module = (mountElement) => {
 
     setSelectButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            fractalSetType = value;
-            mathCoordinateSize = mathCoordinateSizeDefault;
-            coordinatesCenter = coordinatesCenterDefault;
+            const selectSetMessage: IMessage = {
+                type: 'setFractalFunction',
+                payload: value,
+            };
 
-            render();
+            worker.postMessage(selectSetMessage);
         });
     });
 
     zoomButtons.forEach(({ key, value }) => {
         controls.elements[key].addEventListener('click', () => {
-            // todo implement
-            // const centerAsMathCoords = coordinates.toMathCoordinates(canvasCenterCoordinates);
-            // coordinates.setMathCoordinateSize(
-            //     coordinates.getMathCoordinateSize() * value,
-            // );
-            // coordinates.setCenterToMathCoordinates(centerAsMathCoords);
-            render();
+            const zoomMessage: IMessage = {
+                type: 'zoom',
+                payload: value,
+            };
+
+            worker.postMessage(zoomMessage);
         });
     });
 
@@ -149,8 +147,7 @@ const FractalSets: Module = (mountElement) => {
         coordinatesChanged = true;
 
         imageData = imageData ?? context.getImageData(0, 0, canvas.width, canvas.height);
-        // todo цвет из градиента
-        context.fillStyle = '#fff';
+        context.fillStyle = BACKGROUND_COLOR;
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.putImageData(imageData, ...deltaCoordinates);
     };
@@ -162,12 +159,15 @@ const FractalSets: Module = (mountElement) => {
         isMouseDown = false;
 
         if (coordinatesChanged) {
-            coordinatesCenter = addVectors(coordinatesCenter, deltaCoordinates);
+            const setCenterMessage: IMessage = {
+                type: 'moveCenter',
+                payload: deltaCoordinates,
+            };
+            worker.postMessage(setCenterMessage);
+
             deltaCoordinates = null;
             imageData = null;
             coordinatesChanged = false;
-
-            render();
         }
     };
 
